@@ -1,10 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
   title: "INV4U - הטכנולוגיה שמנהלת את האירוע שלך",
   description: "פתרון מלא לניהול אירועים - הזמנות דיגיטליות, אישורי הגעה אוטומטיים וניהול אורחים בוואטסאפ",
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

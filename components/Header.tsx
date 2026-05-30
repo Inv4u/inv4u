@@ -1,20 +1,34 @@
+import Link from 'next/link';
+
+const navLinks = [
+  { href: '/#features', label: 'יכולות' },
+  { href: '/#roadmap', label: 'מסלולים' },
+  { href: '/#calculator', label: 'מחשבון חיסכון' },
+  { href: '/#faq', label: 'שאלות' },
+];
+
 export default function Header() {
   return (
-    <header className="bg-[#F4F5F7] border-b border-gray-200 sticky top-0 z-50" dir="rtl">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl font-black text-[#0D1B4B]">
-            INV<span className="text-[#1A56DB]">4</span>U
-          </span>
-        </div>
-        <nav className="hidden md:flex gap-8 text-gray-700 font-medium">
-          <a href="#features" className="hover:text-[#1A56DB] transition">
-            המשיכויות
-          </a>
-          <a href="#contact" className="hover:text-[#1A56DB] transition">
-            צור קשר
-          </a>
+    <header className="sticky top-0 z-40 border-b border-white/10 glass-dark" dir="rtl">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
+        <Link href="/" className="text-2xl font-black text-white">
+          INV<span className="text-gradient-warm">4</span>U
+        </Link>
+
+        <nav className="hidden items-center gap-7 text-sm font-bold text-slate-200 md:flex">
+          {navLinks.map((link) => (
+            <a key={link.href} href={link.href} className="transition hover:text-white">
+              {link.label}
+            </a>
+          ))}
         </nav>
+
+        <a
+          href="/#contact"
+          className="rounded-full bg-gradient-to-r from-brand-blue to-grape px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-grape/30 transition hover:-translate-y-0.5"
+        >
+          התחילו בחינם
+        </a>
       </div>
     </header>
   );
