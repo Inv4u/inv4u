@@ -22,6 +22,7 @@ export default function Footer() {
               <li><a href="/#roadmap" className="hover:text-white">מסלולי אירועים</a></li>
               <li><a href="/#calculator" className="hover:text-white">מחשבון חיסכון</a></li>
               <li><a href="/#faq" className="hover:text-white">שאלות נפוצות</a></li>
+              <li><a href="/privacy" className="hover:text-white">מדיניות פרטיות</a></li>
             </ul>
           </div>
 
