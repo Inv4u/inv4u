@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendLeadNotification } from '@/lib/email';
+import { sendLeadNotification as sendWhatsAppNotification } from '@/lib/twilio';
 
 // nodemailer needs the Node.js runtime (not edge).
 export const runtime = 'nodejs';
@@ -52,6 +53,16 @@ export async function POST(request: NextRequest) {
     await sendLeadNotification({ name, phone, email });
   } catch (err) {
     console.error('[leads] Email notification failed:', err);
+    // Do not fail the request: the lead was captured successfully.
+  }
+
+  // 3. WhatsApp notification (best-effort, independent of the email above).
+  //    sendWhatsAppNotification never throws, but we wrap defensively so a
+  //    Twilio failure can never break lead capture.
+  try {
+    await sendWhatsAppNotification({ name, phone, email });
+  } catch (err) {
+    console.error('[leads] WhatsApp notification failed:', err);
     // Do not fail the request: the lead was captured successfully.
   }
 
