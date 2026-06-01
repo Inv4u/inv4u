@@ -50,3 +50,6 @@ Operator: Claude (Opus 4.8). Founder asleep. Autonomous, no permission prompts.
 
 ### Did NOT touch (per hard safety rules)
 - `.env.local`, `.env.example`, `.gitignore`, any secret/key, Twilio/Supabase/email integration, `/api/leads`. No force push.
+
+### Commit
+- `b0cffda` — pushed to `origin/main` at f83f984..b0cffda. Vercel auto-deploy triggered.
