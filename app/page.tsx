@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
+import HowItWorks from '@/components/HowItWorks';
 import FeaturesServiceSection from '@/components/FeaturesServiceSection';
 import RoadmapSection from '@/components/RoadmapSection';
 import SeatingLayoutSection from '@/components/SeatingLayoutSection';
@@ -16,6 +17,7 @@ export default function Home() {
     <main className="w-full">
       <Header />
       <HeroSection />
+      <HowItWorks />
       <FeaturesServiceSection />
       <RoadmapSection />
       <SeatingLayoutSection />

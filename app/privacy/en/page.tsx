@@ -18,20 +18,20 @@ const LAST_UPDATED = "May 31, 2026";
 
 export default function PrivacyPageEn() {
   return (
-    <main dir="ltr" lang="en" className="min-h-screen bg-mesh text-white">
+    <main dir="ltr" lang="en" className="min-h-screen bg-white text-slate-700">
       {/* Top bar */}
-      <header className="sticky top-0 z-50 glass-dark">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
         <nav className="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-extrabold text-white">
-            INV<span className="text-brand-teal">4</span>U
+          <Link href="/" className="text-2xl font-extrabold text-brand-navy">
+            INV<span className="text-brand-blue">4</span>U
           </Link>
           <div className="flex items-center gap-3 text-sm">
-            <Link href="/" className="text-white/70 transition hover:text-white">
+            <Link href="/" className="text-slate-500 transition hover:text-brand-navy">
               Back to site
             </Link>
             <Link
               href="/privacy"
-              className="rounded-full border border-white/20 px-4 py-1.5 text-white/80 transition hover:border-brand-teal hover:text-brand-teal"
+              className="rounded-full border border-slate-300 px-4 py-1.5 text-slate-600 transition hover:border-brand-blue hover:text-brand-blue"
             >
               עברית
             </Link>
@@ -41,11 +41,11 @@ export default function PrivacyPageEn() {
 
       <div className="mx-auto max-w-3xl px-6 py-14 text-left">
         {/* Header */}
-        <div className="mb-10 border-b border-white/10 pb-8">
-          <h1 className="text-3xl font-extrabold sm:text-4xl">
-            Privacy <span className="text-gradient">Policy</span>
+        <div className="mb-10 border-b border-slate-200 pb-8">
+          <h1 className="text-3xl font-extrabold text-brand-navy sm:text-4xl">
+            Privacy <span className="text-brand-blue">Policy</span>
           </h1>
-          <p className="mt-3 text-white/60">Last updated: {LAST_UPDATED}</p>
+          <p className="mt-3 text-slate-500">Last updated: {LAST_UPDATED}</p>
         </div>
 
         <article className="space-y-2">
@@ -104,10 +104,10 @@ export default function PrivacyPageEn() {
             </UL>
 
             <FutureBox>
-              <h3 className="mb-3 text-lg font-bold text-gold">
+              <h3 className="mb-3 text-lg font-bold text-brand-blue">
                 Future Services — not yet collected
               </h3>
-              <p className="mb-3 text-sm text-white/70">
+              <p className="mb-3 text-sm text-slate-500">
                 The items below describe data collection planned for upcoming
                 phases of the Service. This collection is{" "}
                 <strong>not active today</strong>, and this policy will be
@@ -199,7 +199,7 @@ export default function PrivacyPageEn() {
                 business owner.
               </li>
             </UL>
-            <H3 className="text-gold">Planned for future services</H3>
+            <H3 className="text-brand-blue">Planned for future services</H3>
             <UL>
               <li>
                 <strong>Stripe</strong> — online credit card payment processing
@@ -251,7 +251,7 @@ export default function PrivacyPageEn() {
               (7) years for a sole proprietor (&ldquo;עוסק פטור&rdquo;).
             </P>
             <FutureBox>
-              <h3 className="mb-3 text-lg font-bold text-gold">
+              <h3 className="mb-3 text-lg font-bold text-brand-blue">
                 Future service — online payment
               </h3>
               <UL>
@@ -377,7 +377,7 @@ export default function PrivacyPageEn() {
               For any question, request, or matter related to privacy, you can
               reach us:
             </P>
-            <div className="mt-4 rounded-2xl glass-dark border border-white/10 p-6 text-white/80">
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-slate-700">
               <p className="mb-1">
                 <strong>Business name:</strong> INV4U (sole proprietor /
                 &ldquo;עוסק פטור,&rdquo; registered in Israel)
@@ -403,7 +403,7 @@ export default function PrivacyPageEn() {
         </article>
 
         {/* Footer toggle */}
-        <div className="mt-14 border-t border-white/10 pt-8 text-center text-sm text-white/60">
+        <div className="mt-14 border-t border-slate-200 pt-8 text-center text-sm text-slate-500">
           מדיניות זו זמינה גם ב<A href="/privacy">עברית</A>.
         </div>
       </div>
@@ -420,7 +420,7 @@ function Section({
 }) {
   return (
     <section className="pt-6">
-      <h2 className="mb-3 text-xl font-bold text-brand-teal">{title}</h2>
+      <h2 className="mb-3 text-xl font-bold text-brand-navy">{title}</h2>
       {children}
     </section>
   );
@@ -434,19 +434,19 @@ function H3({
   className?: string;
 }) {
   return (
-    <h3 className={`mt-6 mb-3 text-lg font-bold text-white ${className}`}>
+    <h3 className={`mt-6 mb-3 text-lg font-bold text-brand-navy ${className}`}>
       {children}
     </h3>
   );
 }
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="mb-4 leading-relaxed text-white/80">{children}</p>;
+  return <p className="mb-4 leading-relaxed text-slate-600">{children}</p>;
 }
 
 function UL({ children }: { children: React.ReactNode }) {
   return (
-    <ul className="mb-4 list-disc space-y-2 pl-6 leading-relaxed text-white/80 marker:text-brand-teal">
+    <ul className="mb-4 list-disc space-y-2 pl-6 leading-relaxed text-slate-600 marker:text-brand-blue">
       {children}
     </ul>
   );
@@ -456,7 +456,7 @@ function A({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <a
       href={href}
-      className="text-brand-teal underline-offset-4 hover:underline"
+      className="font-medium text-brand-blue underline-offset-4 hover:underline"
     >
       {children}
     </a>
@@ -465,7 +465,7 @@ function A({ href, children }: { href: string; children: React.ReactNode }) {
 
 function FutureBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-6 rounded-2xl border border-gold/30 bg-white/5 p-6">
+    <div className="mt-6 rounded-2xl border border-brand-blue/20 bg-slate-50 p-6">
       {children}
     </div>
   );
