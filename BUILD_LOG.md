@@ -169,3 +169,6 @@ Environment: Next 16.2.6 (Turbopack), React 18, Tailwind 3, TS 5. Build validate
 ## Did NOT touch (per hard safety rules)
 - `.env.local`, `/api/leads`, Twilio integration, Privacy Policy content, no secret rotation, no force push.
 
+## Commit
+- `de79eb9` — "Restructure: dedicated /how-it-works page, premium phone mockup, interactive demo, stronger CTAs" — pushed to `origin/main` at 627944e..de79eb9. Vercel auto-deploy triggered.
+
