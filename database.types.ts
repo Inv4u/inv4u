@@ -94,21 +94,25 @@ export interface Database {
         Row: Profile;
         Insert: Partial<Profile> & { id: string; full_name?: string };
         Update: Partial<Profile>;
+        Relationships: [];
       };
       events: {
         Row: EventRow;
         Insert: Partial<EventRow> & { owner_id: string };
         Update: Partial<EventRow>;
+        Relationships: [];
       };
       guests: {
         Row: Guest;
         Insert: Partial<Guest> & { event_id: string; full_name: string };
         Update: Partial<Guest>;
+        Relationships: [];
       };
       invitations: {
         Row: Invitation;
         Insert: Partial<Invitation> & { guest_id: string };
         Update: Partial<Invitation>;
+        Relationships: [];
       };
       notifications: {
         Row: NotificationRow;
@@ -117,6 +121,7 @@ export interface Database {
           title: string;
         };
         Update: Partial<NotificationRow>;
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

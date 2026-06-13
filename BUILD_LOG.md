@@ -4,6 +4,82 @@ Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committe
 
 ---
 
+## ★ FINAL SUMMARY — all 4 tasks complete (read this first)
+
+| # | Task | Result | Commit |
+|---|------|--------|--------|
+| 1 | Remove pricing → consultation model | ✅ done | `c9c05da` |
+| 2 | `DATABASE_PLAN.md` design doc | ✅ done | `5085d3c` |
+| 3 | DB schema (migrations) + auth helpers | ✅ files prepared (not applied to prod) | `fda9201` |
+| 4 | Signup/login/pending/admin + auth | ✅ built & smoke-tested | _this commit_ |
+
+Every task: `npm run build` passed with **0 errors** before commit. Nothing was committed on a failing build.
+
+### 🔧 What Maor must do manually before auth works (in order)
+1. **Apply the migrations** — Supabase Dashboard → SQL Editor → run, in order:
+   `supabase/migrations/0001_phase1_auth_profiles.sql`, then `0002_…`, then `0003_…`. (Idempotent; or `supabase db push`.)
+2. **(Optional) phone signup** — Dashboard → Authentication → Providers → enable Phone (needs an SMS provider). **Email signup works without this** — use email until then.
+3. **(Optional) env vars** — add `SUPABASE_SERVICE_ROLE_KEY` (same value as your existing service key — code falls back to `SUPABASE_SERVICE_KEY` so nothing breaks if you skip) and `ADMIN_NOTIFICATION_EMAIL=inv4u.business@gmail.com`. `.env.example` documents both. **Do not commit `.env.local`.**
+4. **Create your admin account** — sign up at `/signup`, then run the promotion SQL (see Task 4 entry below). I did **not** create it or store a password (the log is in git).
+5. **Privacy Policy** — the auth feature collects new PII (account + guest names/phones/emails/passwords). Update the policy **before launching auth** (Israeli Privacy Law + GDPR). I left the policy untouched per the hard rule; this is a launch blocker for the auth feature only — the current public site is unaffected.
+
+### ⚠️ Limitations / known issues
+- **Not runtime-tested end-to-end:** migrations aren't applied to the live DB, so I validated via build + page-render + redirect smoke tests, not a real signup→approve→login cycle. Test that once migrations are live.
+- **Task 1C (lead form fields) intentionally not changed** — swapping email→event-type/date requires editing `/api/leads` + the `leads` table (forbidden this task). The form still works (name/phone/email). See Task 1 entry. Recommend building the richer form against the new `events` schema next.
+- Phone-based password auth depends on the SMS provider (step 2). Email is the reliable path now.
+- `lib/supabase/admin.ts` is untyped on purpose (see Task 4) — server-only, results cast.
+
+### ▶️ Recommended next steps
+1. Apply migrations + create your admin account; do a real signup→approval test.
+2. Update the Privacy Policy for the new data collection.
+3. Build the consultation lead form (name + phone + event type + approximate date) against the `events` schema, replacing the email-only form.
+4. Build out `/dashboard` (event creation → guest import → WhatsApp invites → RSVP), reusing the `events`/`guests`/`invitations` tables + the `invite_token` RPCs already designed.
+
+---
+
+---
+
+## TASK 4 — Signup / login / pending / admin dashboard ✅ (2026-06-13)
+
+### Pages & routing (all build-validated, smoke-tested)
+- **`/signup`** — email **or** phone + password (min 8) + full name → `signUp()` (`approved=false`) → fires `/api/auth/notify-signup` (alerts Maor, best-effort) → redirects to `/pending`.
+- **`/login`** — email/phone + password → routes by status: admin → `/admin`, approved → `/dashboard` (or `?next=`), else → `/pending`.
+- **`/pending`** — "החשבון שלך ממתין לאישור" + contact info (phone/WhatsApp).
+- **`/admin`** — admin-only. Lists all users with **filter (ממתינים / מאושרים / הכל)**, one-click **אישור / ביטול אישור**, and a user-detail modal (name, email, phone, role, signup date). Approve → sets `approved/approved_by/approved_at` and notifies the user (best-effort).
+- **`/dashboard`** — placeholder "ברוך הבא, [name] — features coming soon" + sign-out.
+- Shared UI: `components/AuthShell.tsx`, `components/AdminUserList.tsx`, `components/SignOutButton.tsx`.
+
+### Auth protection — `proxy.ts` (Next 16's renamed "middleware")
+- `/admin/*` → must be `role='admin'`; `/dashboard/*` → must be `approved=true` (else `/pending`); unauthenticated → `/login?next=…`. Verified: both redirect 307 when logged out, and it does **not** 500 even with the DB tables absent (defensive try/catch).
+- Note: I renamed `middleware.ts` → `proxy.ts` because Next 16.2 deprecates the `middleware` filename (build emitted a warning). Same behavior.
+
+### Notifications — REUSE of the existing integration (no Twilio/email setup modified)
+- `lib/notify.ts`: admin "new signup" alert **reuses** `lib/email`+`lib/twilio` `sendLeadNotification` (already targets Maor). User "approved" message uses the **same Gmail + Twilio credentials** via fresh transports (the existing helpers are hard-wired to Maor's address, so they can't message an arbitrary user). `lib/twilio.ts`/`lib/email.ts` themselves are untouched.
+- `/api/auth/notify-signup` is rate-limited (reuses `lib/rateLimit`).
+
+### ⚠️ Maor's admin account — what I could and couldn't do
+I **cannot** create a real auth account, because that requires running against the live Supabase (migrations aren't applied, and per CLAUDE.md I don't perform creative/destructive prod DB ops autonomously). So, once you've applied the Task 3 migrations:
+1. Go to **`/signup`** and register with **`maorsalem22@gmail.com`** (or `inv4u.business@gmail.com`) + a strong password **you choose**.
+2. In Supabase SQL Editor, promote yourself:
+   ```sql
+   update public.profiles
+   set role = 'admin', approved = true, approved_at = now()
+   where email = 'maorsalem22@gmail.com';
+   ```
+3. Log in → you land on `/admin`.
+- **Security note:** I deliberately did **NOT** write an admin password into this committed log (it's in git). Per CLAUDE.md secrets handling, set your own password at signup. Flagging this as an intentional deviation from "document the credentials."
+
+### Build fixes during this task
+- Hand-written `Database` table types needed `Relationships: []` (supabase-js v2). The service-role admin client still collapsed **writes** to `never`, so `lib/supabase/admin.ts` is intentionally **untyped** (server-only, results cast/validated). Typed reads kept on the browser/server clients.
+
+### Did NOT touch
+- `/api/leads`, `lib/twilio.ts`, `lib/email.ts`, `lib/supabase.ts`, `.env.local`, Privacy Policy. No prod DB writes. No password committed.
+
+### Files
+- New: `app/signup/page.tsx`, `app/login/page.tsx`, `app/pending/page.tsx`, `app/dashboard/page.tsx`, `app/admin/page.tsx`, `app/admin/actions.ts`, `app/api/auth/notify-signup/route.ts`, `components/AuthShell.tsx`, `components/AdminUserList.tsx`, `components/SignOutButton.tsx`, `lib/notify.ts`, `lib/supabase/middleware.ts`, `proxy.ts`. Edited: `database.types.ts`, `lib/supabase/admin.ts`.
+
+---
+
 ## TASK 3 — Implement database schema + auth helpers ✅ (2026-06-13)
 
 ### What was built (files, all build-validated)

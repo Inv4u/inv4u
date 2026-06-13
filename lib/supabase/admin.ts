@@ -1,10 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/database.types';
 
 /**
  * Service-role Supabase client — **server-only**. Bypasses RLS, so NEVER import
  * this into a client component. Used for admin actions (approving users) and
  * for inserting notification records.
+ *
+ * Intentionally untyped: it performs privileged writes and its results are
+ * validated/cast at the call site. (Reads through the session/browser clients
+ * keep the `Database` generic where typing actually helps.)
  *
  * Reads SUPABASE_SERVICE_ROLE_KEY, falling back to the legacy SUPABASE_SERVICE_KEY
  * name that the existing /api/leads flow already uses — so it works with the
@@ -22,7 +25,7 @@ export function getSupabaseAdmin() {
     );
   }
 
-  return createClient<Database>(url, serviceKey, {
+  return createClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
