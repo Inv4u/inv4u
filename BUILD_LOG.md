@@ -4,6 +4,15 @@ Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committe
 
 ---
 
+## TASK 2 — DATABASE_PLAN.md ✅ (2026-06-13)
+- Wrote `DATABASE_PLAN.md` at project root. **No tables built** — design only, per the brief.
+- Covers: Supabase Auth + the standard **`auth.users` ↔ `public.profiles` 1:1 split** (we don't add columns to `auth.users`); the **`approved` gate enforced in RLS** (not just UI — the DB refuses unapproved users); full schema for `profiles`, `events`, `guests`, `invitations`, `notifications` with enums; **RLS policies per table** incl. **public RSVP via `invite_token` through `SECURITY DEFINER` RPCs** (so the WhatsApp link never exposes the whole table); the signup→approve auth flow; a **3-phase migration plan**; new env vars; a **Privacy Policy update flag** (new PII collection — launch blocker, not changed here); and **8 open questions** for Maor.
+- Key calls I made (flagging for review): profiles split from auth.users; approval enforced at the RLS layer; token-based RSVP via RPC rather than a broad public SELECT policy; `honoree_name` added alongside `couple_name_1/2` for non-couple events.
+- Validation: `npm run build` → zero errors (docs-only change, code untouched).
+- File: `DATABASE_PLAN.md` (new).
+
+---
+
 ## TASK 1 — Remove pricing, shift to consultation model ✅ (2026-06-13T17:58Z)
 
 ### 1A — Removed all pricing
