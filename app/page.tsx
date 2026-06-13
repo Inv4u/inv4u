@@ -1,7 +1,8 @@
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
-import HowItWorks from '@/components/HowItWorks';
+import HowItWorksCTA from '@/components/HowItWorksCTA';
 import FeaturesServiceSection from '@/components/FeaturesServiceSection';
+import MidPageCTA from '@/components/MidPageCTA';
 import RoadmapSection from '@/components/RoadmapSection';
 import SeatingLayoutSection from '@/components/SeatingLayoutSection';
 import ComparisonSection from '@/components/ComparisonSection';
@@ -10,6 +11,7 @@ import JoinBanner from '@/components/JoinBanner';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import StickyLaunchCTA from '@/components/StickyLaunchCTA';
 import Footer from '@/components/Footer';
 
 export default function Home() {
@@ -17,17 +19,21 @@ export default function Home() {
     <main className="w-full">
       <Header />
       <HeroSection />
-      <HowItWorks />
+      <HowItWorksCTA />
       <FeaturesServiceSection />
+      {/* mid-page CTA #1 */}
+      <MidPageCTA />
       <RoadmapSection />
       <SeatingLayoutSection />
       <ComparisonSection />
       <SavingsCalculatorSection />
+      {/* mid-page CTA #2 — the "be among the first" launch banner */}
       <JoinBanner />
       <FAQSection />
       <ContactSection />
       <Footer />
       <FloatingWhatsApp />
+      <StickyLaunchCTA />
     </main>
   );
 }

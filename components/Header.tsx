@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 const navLinks = [
+  { href: '/how-it-works', label: 'איך זה עובד' },
   { href: '/#features', label: 'יכולות' },
   { href: '/#roadmap', label: 'מסלולים' },
   { href: '/#calculator', label: 'מחשבון חיסכון' },

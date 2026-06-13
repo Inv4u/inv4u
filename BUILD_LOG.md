@@ -107,3 +107,65 @@ Operator: Claude (Opus 4.8). Autonomous, no permission prompts. Founder doing Me
 3. Browser DevTools → Network → check response headers on the document for CSP + the 4 other security headers; check the console for any CSP violations (CSP is permissive, none expected — if a third-party script is blocked, add its origin to the relevant `*-src`).
 4. Try submitting the form with an invalid Israeli phone or bad email — should be rejected with a Hebrew error.
 
+---
+
+# BUILD_LOG — 4-Part Site Update (2026-06-13)
+
+Operator: Claude (Opus 4.8). Autonomous, no permission prompts. Founder doing Meta verification in parallel.
+Environment: Next 16.2.6 (Turbopack), React 18, Tailwind 3, TS 5. Build validated (zero errors) + localhost smoke tests before commit.
+
+## PART 1 — Dedicated /how-it-works page ✅ (2026-06-13T17:24Z)
+**Decisions**
+- New route `app/how-it-works/page.tsx` (server component, static-prerendered, RTL) with its own `metadata` (title/description for SEO). Layout: Header → page hero (navy `bg-mesh`) → expanded 5-step story → process FAQ → closing CTA → Footer → FloatingWhatsApp.
+- `HowItWorks` component made reusable via a new `expanded?: boolean` prop. In expanded mode each step shows a longer `longDescription` + a 3-bullet `details` checklist, and the component **hides its own internal heading** (the page hero supplies it). Default (non-expanded) behavior is unchanged — but the homepage no longer renders it.
+- New `components/ProcessFAQ.tsx` — 6 process-specific Q&As (setup time, "I'm not technical", non-WhatsApp guests, editing after send, guests changing their answer, how it saves money), reusing the existing FAQ accordion pattern.
+- **Homepage:** removed the full `<HowItWorks />`; replaced with new `components/HowItWorksCTA.tsx` — an elegant single-CTA teaser (step pills + button "איך זה עובד? לחצו לראות את התהליך המלא" → `/how-it-works`). Not pushy.
+- Added "איך זה עובד" as the first link in the header nav so the page is discoverable.
+
+**Files:** `app/how-it-works/page.tsx` (new), `components/ProcessFAQ.tsx` (new), `components/HowItWorksCTA.tsx` (new), `components/HowItWorks.tsx` (expanded prop + richer copy), `app/page.tsx` (swap), `components/Header.tsx` (nav link).
+
+## PART 2 — Premium invitation mockup ✅
+**Decisions**
+- **Unsplash photo:** `https://images.unsplash.com/photo-1519741497674-611481863552` — a happy wedding couple. Verified the permanent CDN URL returns `200 image/jpeg`, and confirmed via web search it is an Unsplash wedding image. **Could NOT definitively confirm the photographer's name** through available tools, so per CLAUDE.md ("never invent") I did **not** fabricate one — attributed to "Unsplash" with the source URL in a code comment + an `sr-only` credit. Unsplash license permits free commercial use; visible attribution is appreciated, not required.
+- Served via **`next/image`** (`fill`, `sizes="300px"`, `loading="lazy"`, Hebrew alt "דנה ויוסי — בני הזוג מתחבקים ביום חתונתם"). Configured `images.remotePatterns` for `images.unsplash.com` in `next.config.js`. CSP already allowed it (`img-src ... https:` + same-origin optimizer). Optimizer confirmed serving the image `200 image/jpeg` at default quality.
+- **Typography:** added Cormorant Garamond (Google Fonts, `display=swap`) in `app/layout.tsx`, used only for the couple names + "מתחתנים!".
+- **Gold accent `#C9A86C`** (+ soft `#E7D7B8`) used ONLY inside the invitation mockup (borders, divider, RSVP primary, label), via inline styles — not added to the global theme, per the brief.
+- Sample content: couple דנה & יוסי, date **שבת, 14.06.2026**, venue **גן האירועים "השמיים", פתח תקווה**, RSVP buttons **אישור הגעה / לא אגיע / טרם החלטתי**. Synced the same date/venue across the RSVP + dashboard screens for consistency (previously 14.08.2026 / ראשון לציון).
+
+## PART 3 — Interactive phone mockup ✅
+**Decisions**
+- Rewrote `components/PhoneMockup.tsx` to **5 stages** matching the story: invitation → WhatsApp delivery → RSVP → AI follow-up → dashboard (added two new screens: a WhatsApp chat-delivery screen and an AI-call screen with live soundwave + transcript).
+- **Clickable tab dots** at the bottom (role="tablist", `aria-selected`/`aria-current`, active dot widened + white). Click changes the screen with a fade transition.
+- **Auto-advance preserved but enters manual mode** on any user interaction (click / arrow key / swipe) — `manual` state stops the interval permanently; also pauses on hover. Auto-advance is **disabled entirely for `prefers-reduced-motion`** users (via `matchMedia`).
+- **Keyboard accessible:** phone body is `tabIndex=0`, `role="group"`/`aria-roledescription="קרוסלה"`, ArrowRight=previous / ArrowLeft=next (RTL-correct), visible `focus-visible` ring on body + dots. Added an `aria-live="polite"` `sr-only` announcement of the current screen.
+- **Touch-swipeable:** swipe left → next, swipe right → previous (40px threshold).
+- RSVP screen gained a third option (טרם — "maybe") to match the invitation's three RSVP buttons.
+
+**Files:** `components/PhoneMockup.tsx` (full rewrite), `next.config.js` (images), `app/layout.tsx` (serif font).
+
+## PART 4 — Stronger CTAs (mixed tone, not spammy) ✅
+**Decisions** — kept to **5 section-level CTAs** total (the brief's max), spread across the long page:
+1. **Hero (confident):** "התחילו בחינם" → **"צרו את ההזמנה שלכם"**.
+2. **Mid-page CTA #1 (calm):** new `components/MidPageCTA.tsx` — "מוכנים להתחיל?" band placed after the features section.
+3. **Mid-page CTA #2:** kept the existing `JoinBanner` ("היו מהראשונים…") as the second mid-page CTA — it already sits between feature blocks, so rather than add a redundant third band I treated it as CTA #2 (honors "2 mid-page CTAs" without over-cluttering).
+4. **Footer (gentle close):** added "יש לכם שאלה? דברו איתנו" band at the top of the footer.
+5. **Sticky launch CTA (honest urgency):** new `components/StickyLaunchCTA.tsx` — "תפסו מקום במחירי השקה", floating **bottom-LEFT** (opposite the WhatsApp FAB at bottom-right, so no overlap), appears only after scrolling >600px, dismissible (remembered in `localStorage`). We genuinely are in launch period, so the scarcity is honest.
+- All CTAs link to `/#contact` (the lead form). Header button + FloatingWhatsApp are persistent nav, not counted as section CTAs.
+
+**Files:** `components/MidPageCTA.tsx` (new), `components/StickyLaunchCTA.tsx` (new), `components/HeroSection.tsx` (copy), `components/Footer.tsx` (gentle CTA), `app/page.tsx` (placement).
+
+## Technical / validation
+- `npm run build` → **success, zero errors**. New `/how-it-works` route prerenders as static (○). Total routes 12.
+- Localhost (`next start`) smoke tests confirmed: `/` and `/how-it-works` → 200; homepage contains the new how-it-works CTA, mid-page CTA, confident hero CTA, footer gentle CTA, and the full HowItWorks step blocks are gone; `/how-it-works` contains hero, expanded step bullets, process FAQ, closing CTA; the Unsplash photo serves `200 image/jpeg` through the next/image optimizer at default quality.
+- RTL, TypeScript (no `any`), mobile-first, reduced-motion respected (framer-motion `useReducedMotion` in steps; `matchMedia` gate on phone auto-advance; global CSS reduced-motion rule covers the rest).
+- Gold `#C9A86C` scoped to the invitation mockup only — not added to the Tailwind theme.
+
+## Limitations / notes
+- **No headless browser in this environment**, so I could not click the interactive phone or read the live JS console. Validated via build + SSR/HTTP checks + code review. Verify in a real browser: phone dot/arrow/swipe navigation, focus rings, and a clean console.
+- Cookie banner + sticky launch CTA are client-mount-gated, so they're (correctly) absent from server HTML — verify visually in-browser that both still appear/dismiss.
+- Photographer attribution left as generic "Unsplash" (see Part 2) — if you want a named credit, tell me the photographer and I'll add it.
+- Kept the existing present-tense AI-voice product narrative (already used site-wide); did not change product messaging tonight.
+
+## Did NOT touch (per hard safety rules)
+- `.env.local`, `/api/leads`, Twilio integration, Privacy Policy content, no secret rotation, no force push.
+

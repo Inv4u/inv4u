@@ -209,6 +209,9 @@ interface Step {
   description: string;
   subtitle: string;
   Art: React.ComponentType<IllustrationProps>;
+  // Richer copy shown only on the dedicated /how-it-works page.
+  longDescription: string;
+  details: string[];
 }
 
 const STEPS: Step[] = [
@@ -220,6 +223,13 @@ const STEPS: Step[] = [
       'בונים את האירוע ב-INV4U תוך דקות — בוחרים עיצוב, מוסיפים פרטים, ומעלים את רשימת המוזמנים.',
     subtitle: 'Create your event in minutes',
     Art: CreateEventArt,
+    longDescription:
+      'נכנסים למערכת, בוחרים את סוג האירוע ואת העיצוב שמדבר אליכם, וממלאים את הפרטים — תאריך, מקום, שעה וטקסט אישי. מעלים את רשימת המוזמנים מקובץ Excel/CSV או מדביקים ישירות מאנשי הקשר. תוך דקות ספורות ההזמנה הדיגיטלית מוכנה לשליחה, ואנחנו כאן ללוות אתכם בכל שלב.',
+    details: [
+      'עשרות עיצובים מקצועיים מוכנים, או עיצוב אישי לחלוטין',
+      'העלאת רשימת מוזמנים מ-Excel/CSV או מאנשי הקשר',
+      'הוספת וידאו, מוזיקה, ניווט לאולם וברכה אישית',
+    ],
   },
   {
     id: 'send',
@@ -229,6 +239,13 @@ const STEPS: Step[] = [
       'המערכת שולחת הזמנה דיגיטלית בוואטסאפ לכל המוזמנים בלחיצה אחת — בלי טלפונים ובלי אקסלים.',
     subtitle: 'WhatsApp invitations sent to every guest',
     Art: SendInvitesArt,
+    longDescription:
+      'בלחיצת כפתור המערכת שולחת לכל מוזמן הזמנה דיגיטלית אישית בוואטסאפ — עם השם שלו, הפרטים וקישור ייעודי לאישור הגעה. בלי להעתיק הודעות אחת-אחת, בלי אקסלים ובלי שיחות טלפון. כל מוזמן מקבל בדיוק את ההודעה הנכונה, בזמן הנכון.',
+    details: [
+      'שליחה המונית בוואטסאפ בלחיצה אחת',
+      'הודעה אישית עם שם המוזמן וקישור ייעודי לכל אחד',
+      'תזכורות אוטומטיות למי שלא פתח או לא הגיב',
+    ],
   },
   {
     id: 'rsvp',
@@ -238,6 +255,13 @@ const STEPS: Step[] = [
       'האורחים מאשרים הגעה ישירות בוואטסאפ, ולוח הבקרה שלכם מתעדכן בזמן אמת — כל הנתונים במקום אחד.',
     subtitle: 'Guests reply, your dashboard updates live',
     Art: RsvpArt,
+    longDescription:
+      'האורחים מאשרים הגעה ישירות בתוך הוואטסאפ — מגיעים, לא מגיעים או טרם החליטו, וגם כמה אורחים. כל תשובה נכנסת מיד ללוח הבקרה ומתעדכנת בזמן אמת. אתם רואים בכל רגע כמה אישרו, כמה חסרים ומי עדיין לא ענה — בלי לרדוף אחרי אף אחד.',
+    details: [
+      'אישור בלחיצה אחת — בלי אפליקציה ובלי הרשמה',
+      'בחירת מספר אורחים והעדפות (למשל מנה צמחונית)',
+      'לוח בקרה חי שמתעדכן עם כל תשובה',
+    ],
   },
   {
     id: 'ai',
@@ -247,6 +271,13 @@ const STEPS: Step[] = [
       'מי שלא ענה? סוכן AI מתקשר בקול אנושי בעברית, מקבל תשובה מסודרת ומעדכן את הרשימה אוטומטית.',
     subtitle: 'AI voice calls follow up in Hebrew',
     Art: AiCallArt,
+    longDescription:
+      'את מי שלא ענה גם אחרי התזכורות, סוכן AI מתקשר אליו בשיחה קולית בעברית טבעית. הוא מציג את עצמו, שואל אם יגיעו, מבין תשובות חופשיות ומעדכן את הרשימה לבד. כל שיחה מתומללת אוטומטית, כך שיש לכם תיעוד מלא — בלי להרים טלפון אחד בעצמכם.',
+    details: [
+      'שיחות קוליות ב-AI בעברית טבעית למי שלא הגיב',
+      'הבנת תשובות חופשיות ועדכון אוטומטי של הסטטוס',
+      'תמלול מלא של כל שיחה ישירות בלוח הבקרה',
+    ],
   },
   {
     id: 'perfect',
@@ -256,6 +287,13 @@ const STEPS: Step[] = [
       'אתם מגיעים לאירוע עם רשימת אורחים מלאה, מדויקת ומעודכנת — בלי הפתעות ובלי כאב ראש.',
     subtitle: 'Arrive with a complete, accurate guest list',
     Art: PerfectEventArt,
+    longDescription:
+      'ביום האירוע אתם מגיעים עם רשימת אורחים סופית, מדויקת ומעודכנת — יודעים בדיוק כמה מנות להזמין, איך לסדר את ההושבה ומי הגיע. בלי הפתעות של הרגע האחרון, בלי טבלאות ידניות ובלי כאב ראש. אתם פשוט נהנים מהאירוע.',
+    details: [
+      'רשימת אורחים סופית ומדויקת לאולם ולקייטרינג',
+      'הערכת מנות חכמה שחוסכת אלפי שקלים מיותרים',
+      'ייצוא הנתונים והושבה חכמה בלחיצה',
+    ],
   },
 ];
 
@@ -282,7 +320,15 @@ const artVariants: Variants = {
   show: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: 'easeOut' } },
 };
 
-function StoryStep({ step, index }: { step: Step; index: number }) {
+function StoryStep({
+  step,
+  index,
+  expanded = false,
+}: {
+  step: Step;
+  index: number;
+  expanded?: boolean;
+}) {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -353,12 +399,31 @@ function StoryStep({ step, index }: { step: Step; index: number }) {
             variants={reduce ? undefined : itemVariants}
             className="mx-auto mt-5 max-w-md text-lg leading-relaxed text-slate-600 md:mx-0 md:text-xl"
           >
-            {step.description}
+            {expanded ? step.longDescription : step.description}
           </motion.p>
+
+          {expanded && (
+            <motion.ul
+              variants={reduce ? undefined : itemVariants}
+              className="mx-auto mt-6 max-w-md space-y-2.5 text-right md:mx-0"
+            >
+              {step.details.map((detail) => (
+                <li
+                  key={detail}
+                  className="flex items-start gap-3 text-base text-slate-700"
+                >
+                  <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-teal/15 text-xs font-bold text-brand-teal">
+                    ✓
+                  </span>
+                  <span>{detail}</span>
+                </li>
+              ))}
+            </motion.ul>
+          )}
 
           <motion.p
             variants={reduce ? undefined : itemVariants}
-            className="mt-3 text-sm font-medium uppercase tracking-wide text-brand-blue/70"
+            className="mt-5 text-sm font-medium uppercase tracking-wide text-brand-blue/70"
             style={{ direction: 'ltr' }}
           >
             {step.subtitle}
@@ -373,45 +438,47 @@ function StoryStep({ step, index }: { step: Step; index: number }) {
 /*  Section                                                            */
 /* ------------------------------------------------------------------ */
 
-export default function HowItWorks() {
+export default function HowItWorks({ expanded = false }: { expanded?: boolean }) {
   const reduce = useReducedMotion();
 
   return (
     <section id="how-it-works" dir="rtl" className="relative bg-white">
-      {/* Section heading */}
-      <div className="mx-auto max-w-3xl px-6 pt-24 pb-4 text-center md:pt-28">
-        <motion.span
-          initial={reduce ? false : { opacity: 0, y: 16 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.5 }}
-          className="inline-block rounded-full bg-brand-blue/10 px-4 py-1.5 text-sm font-bold text-brand-blue"
-        >
-          איך זה עובד
-        </motion.span>
-        <motion.h2
-          initial={reduce ? false : { opacity: 0, y: 20 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.6, delay: 0.05 }}
-          className="mt-4 text-4xl font-black text-brand-navy md:text-5xl"
-        >
-          מהזמנה ראשונה ועד האירוע המושלם
-        </motion.h2>
-        <motion.p
-          initial={reduce ? false : { opacity: 0, y: 20 }}
-          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mx-auto mt-4 max-w-xl text-lg text-slate-600 md:text-xl"
-        >
-          חמישה שלבים פשוטים. INV4U מנהל את כולם בשבילכם.
-        </motion.p>
-      </div>
+      {/* Section heading — the dedicated page supplies its own hero instead. */}
+      {!expanded && (
+        <div className="mx-auto max-w-3xl px-6 pt-24 pb-4 text-center md:pt-28">
+          <motion.span
+            initial={reduce ? false : { opacity: 0, y: 16 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.5 }}
+            className="inline-block rounded-full bg-brand-blue/10 px-4 py-1.5 text-sm font-bold text-brand-blue"
+          >
+            איך זה עובד
+          </motion.span>
+          <motion.h2
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="mt-4 text-4xl font-black text-brand-navy md:text-5xl"
+          >
+            מהזמנה ראשונה ועד האירוע המושלם
+          </motion.h2>
+          <motion.p
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="mx-auto mt-4 max-w-xl text-lg text-slate-600 md:text-xl"
+          >
+            חמישה שלבים פשוטים. INV4U מנהל את כולם בשבילכם.
+          </motion.p>
+        </div>
+      )}
 
       {/* Steps */}
       {STEPS.map((step, i) => (
-        <StoryStep key={step.id} step={step} index={i} />
+        <StoryStep key={step.id} step={step} index={i} expanded={expanded} />
       ))}
     </section>
   );

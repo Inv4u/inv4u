@@ -45,7 +45,7 @@ export default function HeroSection() {
           </p>
 
           <div className="flex animate-fade-in-up animation-delay-300 flex-col justify-center gap-4 pt-2 sm:flex-row lg:justify-start">
-            <a href="#contact" className="btn-primary">התחילו בחינם</a>
+            <a href="#contact" className="btn-primary">צרו את ההזמנה שלכם</a>
             <DemoModal />
           </div>
 

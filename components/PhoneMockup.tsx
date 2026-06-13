@@ -1,43 +1,124 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
-const SCREENS = ['invitation', 'rsvp', 'dashboard'] as const;
-const SCREEN_LABELS: Record<(typeof SCREENS)[number], string> = {
-  invitation: 'הזמנה',
+/* ------------------------------------------------------------------ *
+ *  Interactive phone mockup — 5 stages matching the "how it works"    *
+ *  story: invitation → WhatsApp delivery → RSVP → AI follow-up →      *
+ *  host dashboard. Auto-advances until the user takes control (click, *
+ *  keyboard or swipe), then stays in manual mode. Keyboard + touch    *
+ *  accessible, and auto-advance is disabled for reduced-motion users. *
+ * ------------------------------------------------------------------ */
+
+// Gold accent — intentionally scoped to the invitation mockup only.
+const GOLD = '#C9A86C';
+const GOLD_SOFT = '#E7D7B8';
+const SERIF = "'Cormorant Garamond', serif";
+
+// Permanent Unsplash image (verified) of a happy couple.
+// Source: https://images.unsplash.com/photo-1519741497674-611481863552 (Unsplash)
+const COUPLE_PHOTO =
+  'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=640&q=70';
+
+// Shared demo details, kept consistent across every screen.
+const COUPLE = 'דנה & יוסי';
+const EVENT_DATE = 'שבת, 14.06.2026';
+const VENUE = 'גן האירועים "השמיים", פתח תקווה';
+
+const STAGES = ['invitation', 'whatsapp', 'rsvp', 'ai', 'dashboard'] as const;
+type Stage = (typeof STAGES)[number];
+
+const STAGE_LABELS: Record<Stage, string> = {
+  invitation: 'ההזמנה',
+  whatsapp: 'שליחה בוואטסאפ',
   rsvp: 'אישור הגעה',
+  ai: 'שיחת AI',
   dashboard: 'לוח בקרה',
 };
 
-/**
- * A stylised phone that auto-rotates between three screens guests/hosts see:
- * an elegant invitation, the RSVP flow, and the host dashboard.
- */
+const AUTO_ADVANCE_MS = 4600;
+
 export default function PhoneMockup() {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [answer, setAnswer] = useState<'yes' | 'no' | null>(null);
+  const [manual, setManual] = useState(false); // user took control → stop auto
+  const [hovered, setHovered] = useState(false);
+  const [reduced, setReduced] = useState(false);
+
+  // Shared RSVP interactive state.
+  const [answer, setAnswer] = useState<'yes' | 'no' | 'maybe' | null>(null);
   const [guests, setGuests] = useState(2);
 
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => setIndex((i) => (i + 1) % SCREENS.length), 4200);
-    return () => clearInterval(id);
-  }, [paused]);
+  const touchStartX = useRef<number | null>(null);
 
-  const current = SCREENS[index];
+  // Respect prefers-reduced-motion (no auto-advance for those users).
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduced(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  // Auto-advance until the user interacts or hovers.
+  useEffect(() => {
+    if (manual || reduced || hovered) return;
+    const id = setInterval(
+      () => setIndex((i) => (i + 1) % STAGES.length),
+      AUTO_ADVANCE_MS
+    );
+    return () => clearInterval(id);
+  }, [manual, reduced, hovered]);
+
+  const goTo = (i: number) => {
+    setManual(true);
+    setIndex(((i % STAGES.length) + STAGES.length) % STAGES.length);
+  };
+
+  // Keyboard: arrows move between stages (RTL — right = previous).
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      goTo(index - 1);
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      goTo(index + 1);
+    }
+  };
+
+  // Touch: swipe left → next stage, swipe right → previous.
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) goTo(index + (dx < 0 ? 1 : -1));
+    touchStartX.current = null;
+  };
+
+  const current = STAGES[index];
 
   return (
     <div
       className="relative mx-auto w-[280px] sm:w-[300px]"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       {/* glow behind the phone */}
       <div className="absolute -inset-8 bg-gradient-to-tr from-grape via-magenta to-brand-blue opacity-40 blur-3xl rounded-full" />
 
-      {/* phone body */}
-      <div className="relative rounded-[2.6rem] bg-slate-900 p-2.5 shadow-2xl ring-1 ring-white/10">
+      {/* phone body — focusable carousel, keyboard + swipe enabled */}
+      <div
+        role="group"
+        aria-roledescription="קרוסלה"
+        aria-label="הדגמת המערכת — חמישה מסכים"
+        tabIndex={0}
+        onKeyDown={onKeyDown}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        className="relative rounded-[2.6rem] bg-slate-900 p-2.5 shadow-2xl ring-1 ring-white/10 outline-none focus-visible:ring-2 focus-visible:ring-brand-teal"
+      >
         {/* notch */}
         <div className="absolute top-2.5 left-1/2 -translate-x-1/2 h-6 w-32 bg-slate-900 rounded-b-2xl z-20" />
 
@@ -45,6 +126,7 @@ export default function PhoneMockup() {
         <div className="relative rounded-[2.1rem] overflow-hidden bg-white h-[580px]" dir="rtl">
           <div key={current} className="absolute inset-0 animate-fade-in">
             {current === 'invitation' && <InvitationScreen />}
+            {current === 'whatsapp' && <WhatsappScreen />}
             {current === 'rsvp' && (
               <RsvpScreen
                 answer={answer}
@@ -53,27 +135,43 @@ export default function PhoneMockup() {
                 setGuests={setGuests}
               />
             )}
+            {current === 'ai' && <AiCallScreen />}
             {current === 'dashboard' && <DashboardScreen />}
           </div>
         </div>
+
+        {/* polite announcement for screen readers */}
+        <span className="sr-only" aria-live="polite">
+          {STAGE_LABELS[current]} — מסך {index + 1} מתוך {STAGES.length}
+        </span>
       </div>
 
-      {/* screen indicators */}
-      <div className="mt-4 flex items-center justify-center gap-2">
-        {SCREENS.map((s, i) => (
+      {/* stage navigation tabs */}
+      <div
+        className="mt-4 flex items-center justify-center gap-2"
+        role="tablist"
+        aria-label="ניווט בין מסכי ההדגמה"
+      >
+        {STAGES.map((s, i) => (
           <button
             key={s}
-            onClick={() => setIndex(i)}
-            aria-label={SCREEN_LABELS[s]}
-            className={`h-2 rounded-full transition-all ${
-              i === index ? 'w-7 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
+            role="tab"
+            onClick={() => goTo(i)}
+            aria-selected={i === index}
+            aria-current={i === index ? 'true' : undefined}
+            aria-label={STAGE_LABELS[s]}
+            title={STAGE_LABELS[s]}
+            className={`h-2.5 rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
+              i === index
+                ? 'w-8 bg-white'
+                : 'w-2.5 bg-white/40 hover:bg-white/70'
             }`}
           />
         ))}
       </div>
 
       {/* floating confirmation bubble */}
-      <div className="absolute bottom-12 -left-4 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-xl animate-floaty">
+      <div className="absolute bottom-16 -left-4 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-xl animate-floaty">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366] text-white">✓</span>
         <div className="leading-tight">
           <p className="text-[11px] font-bold text-slate-800">אישור התקבל</p>
@@ -84,69 +182,145 @@ export default function PhoneMockup() {
   );
 }
 
-/* ---------------- Invitation (elegant: white / gold / silver / pink / green) -------------- */
+/* ---------------- Stage 1 — premium wedding invitation ---------------- */
 function InvitationScreen() {
   return (
-    <div className="relative h-full bg-[#FFFDF8] px-6 py-8 text-center">
-      {/* soft pink & green corner washes */}
-      <div className="pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full bg-[#F6D7DE] opacity-70 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-[#DDEBD6] opacity-70 blur-2xl" />
+    <div className="relative h-full bg-[#FBF8F2] text-center">
+      {/* hero photo of the couple */}
+      <div className="relative h-[42%] w-full overflow-hidden">
+        <Image
+          src={COUPLE_PHOTO}
+          alt="דנה ויוסי — בני הזוג מתחבקים ביום חתונתם"
+          fill
+          sizes="300px"
+          loading="lazy"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#FBF8F2] via-transparent to-black/10" />
+        <span className="sr-only">צילום: Unsplash</span>
+      </div>
 
-      {/* floral corners */}
-      <span className="absolute left-3 top-3 text-2xl opacity-90 select-none">🌿</span>
-      <span className="absolute right-3 top-3 text-2xl opacity-90 -scale-x-100 select-none">🌸</span>
-      <span className="absolute left-3 bottom-3 text-2xl opacity-90 select-none">🌷</span>
-      <span className="absolute right-3 bottom-3 text-2xl opacity-90 -scale-x-100 select-none">🍃</span>
-
-      {/* gold double frame */}
-      <div className="relative flex h-full flex-col items-center justify-center rounded-2xl border border-[#C9A227]/60 p-5 ring-1 ring-inset ring-[#C9A227]/30">
-        <p className="text-[11px] font-medium tracking-[0.3em] text-[#B0904A]">
-          הזמנה לחתונה
-        </p>
-
-        <div className="my-3 flex items-center gap-2 text-[#C9A227]">
-          <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#C9A227]" />
-          <span className="text-sm">🌸</span>
-          <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#C9A227]" />
-        </div>
-
-        <h3
-          className="text-3xl font-black leading-tight text-transparent bg-clip-text"
-          style={{ backgroundImage: 'linear-gradient(135deg,#B38728,#D4AF37,#9C7A2E)' }}
+      {/* gold-framed details */}
+      <div className="relative -mt-6 px-5 pb-5">
+        <div
+          className="rounded-2xl border bg-[#FBF8F2]/95 px-4 pb-5 pt-4 shadow-sm backdrop-blur"
+          style={{ borderColor: GOLD_SOFT }}
         >
-          דנה
-          <span className="mx-2 align-middle text-2xl text-[#C9A227]">&amp;</span>
-          יוסי
-        </h3>
+          <p
+            className="text-[10px] font-semibold tracking-[0.35em]"
+            style={{ color: GOLD }}
+          >
+            הזמנה לחתונה
+          </p>
 
-        <p className="mt-3 text-sm font-medium text-slate-500">מתחתנים!</p>
+          <div className="my-2 flex items-center justify-center gap-2">
+            <span className="h-px w-7" style={{ background: GOLD }} />
+            <span style={{ color: GOLD }}>♦</span>
+            <span className="h-px w-7" style={{ background: GOLD }} />
+          </div>
 
-        <div className="my-4 h-px w-24 bg-gradient-to-r from-transparent via-[#BFC3C9] to-transparent" />
+          <h3
+            className="leading-none text-slate-800"
+            style={{ fontFamily: SERIF, fontSize: '2.45rem', fontWeight: 600 }}
+          >
+            {COUPLE}
+          </h3>
 
-        <p className="text-sm font-bold text-slate-700">יום חמישי · 14.08.2026</p>
-        <p className="mt-1 text-xs text-slate-500">אולמי הגן הקסום, ראשון לציון</p>
+          <p
+            className="mt-1 text-sm italic text-slate-500"
+            style={{ fontFamily: SERIF }}
+          >
+            מתחתנים!
+          </p>
 
-        <div className="mt-5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#B38728] px-6 py-2 text-xs font-bold text-white shadow-md">
-          לצפייה בהזמנה המלאה
-        </div>
+          <div
+            className="mx-auto my-3 h-px w-20"
+            style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }}
+          />
 
-        <div className="mt-3 flex gap-1.5 text-sm">
-          <span>🌷</span><span>🌿</span><span>🌸</span><span>🍃</span><span>🌷</span>
+          <p className="text-[13px] font-bold text-slate-700">{EVENT_DATE}</p>
+          <p className="mt-0.5 text-[11px] text-slate-500">{VENUE}</p>
+
+          {/* RSVP buttons */}
+          <div className="mt-4 grid grid-cols-3 gap-1.5">
+            <span
+              className="rounded-lg py-2 text-[11px] font-bold text-white shadow-sm"
+              style={{ background: GOLD }}
+            >
+              אישור הגעה
+            </span>
+            <span
+              className="rounded-lg border py-2 text-[11px] font-bold text-slate-600"
+              style={{ borderColor: GOLD_SOFT }}
+            >
+              לא אגיע
+            </span>
+            <span
+              className="rounded-lg border py-2 text-[11px] font-bold text-slate-600"
+              style={{ borderColor: GOLD_SOFT }}
+            >
+              טרם החלטתי
+            </span>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ---------------- RSVP ---------------- */
+/* ---------------- Stage 2 — WhatsApp delivery ---------------- */
+function WhatsappScreen() {
+  return (
+    <div className="flex h-full flex-col bg-[#ECE5DD]">
+      {/* whatsapp header */}
+      <div className="flex items-center gap-3 bg-[#075E54] px-4 pb-3 pt-10 text-white">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-lg">💍</span>
+        <div className="leading-tight">
+          <p className="text-sm font-bold">{COUPLE}</p>
+          <p className="text-[10px] text-white/70">הזמנה דיגיטלית</p>
+        </div>
+        <span className="mr-auto text-xs text-white/70">עכשיו</span>
+      </div>
+
+      {/* chat */}
+      <div className="flex-1 space-y-3 px-3 py-4">
+        <div className="ms-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-[#DCF8C6] p-3 shadow-sm">
+          <p className="text-[12px] font-bold text-slate-800">הוזמנתם לחתונה של {COUPLE} 💍</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
+            {EVENT_DATE}
+            <br />
+            {VENUE}
+          </p>
+          <div className="mt-2 rounded-lg bg-white/70 px-3 py-2 text-center text-[11px] font-bold text-[#075E54]">
+            👆 לחצו לצפייה בהזמנה ולאישור הגעה
+          </div>
+          <p className="mt-1 text-left text-[9px] text-slate-400">11:24 ✓✓</p>
+        </div>
+
+        <div className="ms-auto flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-medium text-slate-500 shadow-sm">
+          <span className="h-2 w-2 rounded-full bg-[#25D366]" />
+          נשלח ל-312 מוזמנים בלחיצה אחת
+        </div>
+      </div>
+
+      {/* input bar */}
+      <div className="flex items-center gap-2 bg-[#ECE5DD] px-3 pb-4">
+        <div className="flex-1 rounded-full bg-white px-4 py-2 text-[11px] text-slate-400">הקלדת הודעה…</div>
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#075E54] text-white">➤</span>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Stage 3 — RSVP ---------------- */
 function RsvpScreen({
   answer,
   setAnswer,
   guests,
   setGuests,
 }: {
-  answer: 'yes' | 'no' | null;
-  setAnswer: (a: 'yes' | 'no') => void;
+  answer: 'yes' | 'no' | 'maybe' | null;
+  setAnswer: (a: 'yes' | 'no' | 'maybe') => void;
   guests: number;
   setGuests: React.Dispatch<React.SetStateAction<number>>;
 }) {
@@ -154,17 +328,17 @@ function RsvpScreen({
     <div className="h-full bg-white">
       <div className="relative bg-gradient-to-br from-grape via-magenta to-brand-blue px-5 pt-10 pb-6 text-center text-white">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.25),transparent_55%)]" />
-        <p className="relative text-xs opacity-90">דנה &amp; יוסי · 14.08.2026</p>
+        <p className="relative text-xs opacity-90">{COUPLE} · {EVENT_DATE}</p>
         <h3 className="relative mt-1 text-2xl font-black">אישור הגעה</h3>
       </div>
 
       <div className="px-5 py-5 space-y-4">
         <p className="text-center text-sm font-bold text-slate-700">האם תגיעו לחגוג איתנו? 🥂</p>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button
             onClick={() => setAnswer('yes')}
-            className={`rounded-xl py-2.5 text-sm font-bold transition-all ${
+            className={`rounded-xl py-2.5 text-xs font-bold transition-all ${
               answer === 'yes' ? 'bg-emerald-500 text-white shadow-lg scale-[1.03]' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
             }`}
           >
@@ -172,11 +346,19 @@ function RsvpScreen({
           </button>
           <button
             onClick={() => setAnswer('no')}
-            className={`rounded-xl py-2.5 text-sm font-bold transition-all ${
+            className={`rounded-xl py-2.5 text-xs font-bold transition-all ${
               answer === 'no' ? 'bg-rose-500 text-white shadow-lg scale-[1.03]' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
             }`}
           >
-            ✗ לא נוכל
+            ✗ לא אגיע
+          </button>
+          <button
+            onClick={() => setAnswer('maybe')}
+            className={`rounded-xl py-2.5 text-xs font-bold transition-all ${
+              answer === 'maybe' ? 'bg-amber-400 text-white shadow-lg scale-[1.03]' : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
+            }`}
+          >
+            ? טרם
           </button>
         </div>
 
@@ -202,6 +384,13 @@ function RsvpScreen({
           </div>
         )}
 
+        {answer === 'maybe' && (
+          <div className="animate-fade-in-up rounded-xl border border-amber-200 bg-amber-50 p-3 text-center">
+            <p className="text-sm font-bold text-amber-600">סבבה, נשמור לכם מקום 🤍</p>
+            <p className="mt-0.5 text-[11px] text-amber-500">נזכיר לכם קרוב לתאריך</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-2 pt-1">
           <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-600"><span>📍</span> ניווט לאולם</div>
           <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-600"><span>📅</span> הוסף ליומן</div>
@@ -211,13 +400,57 @@ function RsvpScreen({
   );
 }
 
-/* ---------------- Dashboard ---------------- */
+/* ---------------- Stage 4 — AI voice follow-up ---------------- */
+function AiCallScreen() {
+  const bars = [30, 56, 82, 46, 70, 38, 64, 50, 78, 34];
+  return (
+    <div className="flex h-full flex-col bg-gradient-to-b from-brand-navy to-[#070A1F] px-6 pb-6 pt-12 text-center text-white">
+      <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-brand-teal">
+        שיחה יוצאת · AI
+      </p>
+
+      <div className="mx-auto mt-8 flex h-24 w-24 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-grape text-3xl animate-floaty">
+          🤖
+        </div>
+      </div>
+
+      <h3 className="mt-5 text-xl font-black">סוכן INV4U מתקשר</h3>
+      <p className="mt-1 text-xs text-slate-300">למוזמנים שטרם אישרו הגעה</p>
+
+      {/* live soundwave */}
+      <div className="mt-6 flex h-12 items-center justify-center gap-1">
+        {bars.map((h, i) => (
+          <span
+            key={i}
+            className="w-1.5 rounded-full bg-brand-teal"
+            style={{ height: `${h}%`, opacity: 0.5 + (i % 3) * 0.2 }}
+          />
+        ))}
+      </div>
+
+      {/* transcript snippet */}
+      <div className="mt-6 space-y-2 text-right">
+        <div className="rounded-2xl rounded-tr-sm bg-white/10 px-3 py-2 text-[11px] leading-relaxed text-slate-100">
+          “היי, מדברת מ-INV4U בקשר לחתונה של {COUPLE}. רציתי לוודא — תגיעו לאירוע?”
+        </div>
+        <div className="ms-auto max-w-[80%] rounded-2xl rounded-tl-sm bg-brand-teal/20 px-3 py-2 text-[11px] text-brand-teal">
+          “כן, נגיע שניים!” ✓
+        </div>
+      </div>
+
+      <p className="mt-auto pt-4 text-[10px] text-slate-400">השיחה תומללה ועודכנה בלוח הבקרה אוטומטית</p>
+    </div>
+  );
+}
+
+/* ---------------- Stage 5 — host dashboard ---------------- */
 function DashboardScreen() {
   const bars = [70, 95, 60, 88, 76, 100];
   return (
     <div className="h-full bg-slate-50">
       <div className="bg-brand-navy px-5 pt-10 pb-5 text-white">
-        <p className="text-xs text-slate-300">לוח בקרה · דנה &amp; יוסי</p>
+        <p className="text-xs text-slate-300">לוח בקרה · {COUPLE}</p>
         <div className="mt-1 flex items-end justify-between">
           <h3 className="text-xl font-black">מעקב אישורים</h3>
           <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300">חי 🔴</span>
