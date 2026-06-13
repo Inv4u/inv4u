@@ -7,7 +7,9 @@ export default function ContactSection() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    email: ''
+    email: '',
+    // Honeypot: hidden from real users, bots tend to auto-fill it.
+    company: ''
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -39,7 +41,7 @@ export default function ContactSection() {
       }
 
       setSubmitted(true);
-      setFormData({ name: '', phone: '', email: '' });
+      setFormData({ name: '', phone: '', email: '', company: '' });
       setTimeout(() => setSubmitted(false), 3000);
     } catch (err) {
       console.error('Form submission failed:', err);
@@ -113,6 +115,21 @@ export default function ContactSection() {
           className="rounded-3xl bg-white p-8 shadow-2xl md:p-10"
         >
           <div className="space-y-5">
+            {/* Honeypot — hidden from humans, bots fill it. Not display:none so
+                naive bots still see it; pushed off-screen and excluded from a11y. */}
+            <div aria-hidden="true" className="absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden opacity-0" >
+              <label htmlFor="company">Company (leave empty)</label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
             <div>
               <label htmlFor="name" className="mb-2 block font-bold text-slate-800">
                 שם מלא

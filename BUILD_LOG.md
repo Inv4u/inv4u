@@ -53,3 +53,48 @@ Operator: Claude (Opus 4.8). Founder asleep. Autonomous, no permission prompts.
 
 ### Commit
 - `b0cffda` — pushed to `origin/main` at f83f984..b0cffda. Vercel auto-deploy triggered.
+
+---
+
+# BUILD_LOG — Security Hardening Session (2026-06-13)
+
+Operator: Claude (Opus 4.8). Autonomous, no permission prompts. Founder doing Meta verification in parallel.
+
+## Environment snapshot
+- Next 16.2.6 (Turbopack), React 18, Tailwind 3, TypeScript 5
+- All work validated with `npm run build` (zero errors) + localhost smoke tests before commit.
+
+## TASK 1 — Lead form spam protection ✅ (2026-06-13T12:36Z)
+**Decisions**
+- **Rate limiter:** Upstash Redis is NOT installed (not in deps), so used the requested in-memory fallback. New `lib/rateLimit.ts` — fixed-window counter, max **5 submissions per IP per hour** on `/api/leads`. Returns HTTP 429 + `Retry-After` header. Caveat logged: on Vercel each serverless instance has its own memory, so the effective limit is `5 × warm instances`; structured for an easy Upstash swap if spam becomes real. Has opportunistic Map cleanup to avoid unbounded growth.
+- **Client IP:** extracted from `x-forwarded-for` (left-most) → `x-real-ip` → `'unknown'` (Vercel proxy aware).
+- **Honeypot:** added hidden `company` field to `ContactSection` form (off-screen, `aria-hidden`, `tabIndex=-1`, `autoComplete=off` — not `display:none` so naive bots still fill it). Server: if `company` is non-empty, returns **200 OK without saving or notifying** (so bots don't learn they were caught).
+- **Validation** (new `lib/validation.ts`, server-authoritative): email regex (`^[^\s@]+@[^\s@]+\.[^\s@]{2,}$`, ≤254 chars); Israeli phone (local `0[2-9]XXXXXXXX` or intl `+972[2-9]XXXXXXXX`, strips spaces/dashes/parens); name length 2–100 chars. All error messages in Hebrew.
+- Order of checks: rate limit → honeypot → required fields → name → email → phone → save. Malformed/abusive attempts count toward the rate limit (intentional).
+
+**Files:** `lib/rateLimit.ts` (new), `lib/validation.ts` (new), `app/api/leads/route.ts` (rewired), `components/ContactSection.tsx` (honeypot field + state).
+
+**Validation:** honeypot → 200 (not saved); bad phone/email/short-name → 400 with correct Hebrew messages; 6th request from one IP → 429. All confirmed via curl against `next start`.
+
+## TASK 2 — Security headers ✅
+- Added via `next.config.js` `headers()` on `/:path*`: **CSP** (permissive — `unsafe-inline`/`unsafe-eval` for Next runtime, allows Google Fonts + `*.supabase.co` connect; `frame-ancestors 'none'`, `object-src 'none'`, `form-action 'self'`, `base-uri 'self'`), **X-Frame-Options: DENY**, **X-Content-Type-Options: nosniff**, **Referrer-Policy: strict-origin-when-cross-origin**, **Permissions-Policy: geolocation=(), camera=(), microphone=()**.
+- Verified: all 5 headers present on `/`; home, `/privacy` still 200. CSP intentionally permissive to start; tighten with nonces later.
+
+## TASK 3 — Pin Next.js version ✅
+- `package.json`: `"next": "latest"` → `"next": "16.2.6"` (the installed version). Ran `npm install`; `package-lock.json` root dependency now pins `next: 16.2.6`.
+
+## TASK 4 — Environment variable safety check ✅
+- `.env.local` is git-ignored (`git check-ignore` confirms) and NOT in the staged set. **Not touched.**
+- `.env.example` contains placeholders only (empty values) — no real secrets.
+- Searched codebase for secret patterns (`sk-`, `AC…`, `AIza…`, `eyJ…`, `SG.`, `AKIA`, `ghp_`, `-----BEGIN`, `whsec_`) — **no matches** in source. `lib/supabase.ts`, `lib/twilio.ts`, `lib/email.ts` all read from `process.env`. No hardcoded keys.
+
+## TASK 5 — Cookie consent banner ✅
+- New `components/CookieConsent.tsx` ('use client'), rendered in `app/layout.tsx`. Minimalist navy (`#0D1B4B`) / blue (`#1A56DB`) / white, RTL. Hebrew primary + English fallback line. Two actions: **אישור** (accept) / **דחיית לא-חיוניות** (reject non-essential). Choice saved in `localStorage` (`inv4u_cookie_consent`); banner hidden once a valid choice exists; gracefully shows if localStorage is blocked. No flash for returning users (reveal gated behind client mount).
+
+## Did NOT touch (per hard safety rules)
+- `.env.local`, no secret rotation (Supabase/Gmail/Twilio left for founder), no force push, Twilio integration untouched, Privacy Policy untouched.
+
+## Build & validation
+- `npm run build` → **success, zero errors** (one fixed mid-build: Map iteration needed `forEach` instead of `for…of` for the tsconfig target — no global config change).
+- `next start` smoke tests: headers, validation, honeypot, rate-limit 429 all confirmed.
+

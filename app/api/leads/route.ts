@@ -2,18 +2,54 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendLeadNotification } from '@/lib/email';
 import { sendLeadNotification as sendWhatsAppNotification } from '@/lib/twilio';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
+import {
+  isValidEmail,
+  isValidName,
+  isValidIsraeliPhone,
+  NAME_MIN,
+  NAME_MAX,
+} from '@/lib/validation';
 
 // nodemailer needs the Node.js runtime (not edge).
 export const runtime = 'nodejs';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Abuse brake: max 5 submissions per IP per hour.
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
-  let body: { name?: unknown; phone?: unknown; email?: unknown };
+  // 1. Rate limit by client IP before doing any work.
+  const ip = getClientIp(request.headers);
+  const limit = rateLimit(`leads:${ip}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS);
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: 'יותר מדי בקשות. נסו שוב מאוחר יותר.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(limit.retryAfterSec) },
+      }
+    );
+  }
+
+  let body: {
+    name?: unknown;
+    phone?: unknown;
+    email?: unknown;
+    // Honeypot: a hidden field real users never fill. Bots auto-fill it.
+    company?: unknown;
+  };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  // 2. Honeypot — if filled, silently accept (200) so bots don't learn they
+  //    were caught, but never persist or notify.
+  const honeypot = typeof body.company === 'string' ? body.company.trim() : '';
+  if (honeypot) {
+    return NextResponse.json({ ok: true }, { status: 200 });
   }
 
   const name = typeof body.name === 'string' ? body.name.trim() : '';
@@ -26,14 +62,26 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  if (!EMAIL_RE.test(email)) {
+  if (!isValidName(name)) {
     return NextResponse.json(
-      { error: 'Invalid email address' },
+      { error: `השם חייב להכיל בין ${NAME_MIN} ל-${NAME_MAX} תווים` },
+      { status: 400 }
+    );
+  }
+  if (!isValidEmail(email)) {
+    return NextResponse.json(
+      { error: 'כתובת אימייל לא תקינה' },
+      { status: 400 }
+    );
+  }
+  if (!isValidIsraeliPhone(phone)) {
+    return NextResponse.json(
+      { error: 'מספר טלפון לא תקין (פורמט ישראלי: 05X-XXXXXXX)' },
       { status: 400 }
     );
   }
 
-  // 1. Persist the lead (critical path).
+  // 3. Persist the lead (critical path).
   const { data, error } = await supabaseAdmin
     .from('leads')
     .insert({ name, phone, email })
@@ -48,7 +96,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // 2. Notify the business (best-effort — the lead is already saved).
+  // 4. Notify the business (best-effort — the lead is already saved).
   try {
     await sendLeadNotification({ name, phone, email });
   } catch (err) {
@@ -56,7 +104,7 @@ export async function POST(request: NextRequest) {
     // Do not fail the request: the lead was captured successfully.
   }
 
-  // 3. WhatsApp notification (best-effort, independent of the email above).
+  // 5. WhatsApp notification (best-effort, independent of the email above).
   //    sendWhatsAppNotification never throws, but we wrap defensively so a
   //    Twilio failure can never break lead capture.
   try {
