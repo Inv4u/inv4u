@@ -98,3 +98,12 @@ Operator: Claude (Opus 4.8). Autonomous, no permission prompts. Founder doing Me
 - `npm run build` → **success, zero errors** (one fixed mid-build: Map iteration needed `forEach` instead of `for…of` for the tsconfig target — no global config change).
 - `next start` smoke tests: headers, validation, honeypot, rate-limit 429 all confirmed.
 
+## Commit
+- `8316d5b` — "Security hardening: rate limit, headers, version pin, cookie consent" — pushed to `origin/main` at 741d01b..8316d5b. Vercel auto-deploy triggered.
+
+## To verify on inv4u.vercel.app in the morning
+1. Submit the contact form normally — should still save a lead + send WhatsApp/email (real path untouched).
+2. Cookie banner appears at bottom on first visit; choosing accept/reject dismisses it and it stays dismissed on reload.
+3. Browser DevTools → Network → check response headers on the document for CSP + the 4 other security headers; check the console for any CSP violations (CSP is permissive, none expected — if a third-party script is blocked, add its origin to the relevant `*-src`).
+4. Try submitting the form with an invalid Israeli phone or bad email — should be rejected with a Hebrew error.
+
