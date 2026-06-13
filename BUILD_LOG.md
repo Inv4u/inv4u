@@ -4,6 +4,37 @@ Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committe
 
 ---
 
+## TASK 3 — Implement database schema + auth helpers ✅ (2026-06-13)
+
+### What was built (files, all build-validated)
+- **Packages:** installed `@supabase/ssr@0.12.0` (`@supabase/supabase-js` already present).
+- **Migrations** in `supabase/migrations/` (idempotent, run in order):
+  - `0001_phase1_auth_profiles.sql` — `user_role` enum; `profiles` table (1:1 with `auth.users`, `approved` default false); `is_admin()`/`is_approved()` helpers; `handle_new_user` signup trigger; `touch_updated_at`; `guard_profile_update` (blocks self-escalation of `approved`/`role`); RLS (self-or-admin select/update).
+  - `0002_phase2_events_guests_invitations.sql` — `event_type`/`event_status`/`rsvp_status` enums; `events`, `guests`, `invitations` tables + indexes; RLS (owner-must-be-approved CRUD, admin read-all); **public RSVP via `get_guest_by_token()` + `respond_rsvp()` SECURITY DEFINER RPCs** (granted to `anon`+`authenticated`) so the WhatsApp link exposes only one guest row.
+  - `0003_phase3_notifications.sql` — `notification_type` enum; `notifications` table; RLS (recipient-or-admin).
+- **Types:** `database.types.ts` (hand-authored `Database` type — regenerate from live DB later with `supabase gen types`).
+- **Client helpers:** `lib/supabase/client.ts` (browser, anon), `lib/supabase/server.ts` (cookie-bound server client, async `cookies()` for Next 16), `lib/supabase/admin.ts` (service-role, server-only; reads `SUPABASE_SERVICE_ROLE_KEY` with fallback to legacy `SUPABASE_SERVICE_KEY`).
+- **Auth helpers:** `lib/auth.ts` — `signUp`/`signIn` (email **or** phone + password, Israeli phone normalised to E.164), `signOut`, `getCurrentUser` (profile), `isApproved`.
+- **`.env.example`** updated with `SUPABASE_SERVICE_ROLE_KEY` + `ADMIN_NOTIFICATION_EMAIL` (placeholders only). Kept `SUPABASE_SERVICE_KEY` so the existing `/api/leads` flow is untouched.
+
+### ⚠️ What Maor must do manually (I did NOT run anything against the live database)
+Per the brief's fallback (and CLAUDE.md "verify before DB changes"), I prepared the SQL but did **not** apply it to production. To activate:
+1. **Apply migrations** — Supabase Dashboard → SQL Editor → run `0001`, then `0002`, then `0003` in order (or `supabase db push` if using the CLI). They're idempotent.
+2. **Phone auth (only if you want phone signup):** Dashboard → Authentication → Providers → enable Phone (needs an SMS provider). Email signup works out of the box. Until then, sign up with **email**.
+3. **Env var (optional):** the new code reads `SUPABASE_SERVICE_ROLE_KEY` but falls back to your existing `SUPABASE_SERVICE_KEY`, so nothing breaks if you don't add it. Add it when convenient (same value as the service key) and, ideally, `ADMIN_NOTIFICATION_EMAIL=inv4u.business@gmail.com`.
+4. **Create your admin account** — covered in Task 4 (sign up via `/signup`, then promote with one SQL statement). Documented there.
+
+### Did NOT touch
+- `/api/leads`, `lib/supabase.ts` (its `SUPABASE_SERVICE_KEY` path still works), `.env.local`, Twilio, Privacy Policy. No secrets printed. No prod DB writes.
+
+### Validation
+- `npm run build` → **zero errors** (one fix mid-build: typed `profiles` query → used `maybeSingle()` + nullable cast). All new TS files type-check.
+
+### Files
+- New: `supabase/migrations/0001…sql`, `0002…sql`, `0003…sql`, `database.types.ts`, `lib/supabase/client.ts`, `lib/supabase/server.ts`, `lib/supabase/admin.ts`, `lib/auth.ts`. Edited: `.env.example`, `package.json`/`package-lock.json`.
+
+---
+
 ## TASK 2 — DATABASE_PLAN.md ✅ (2026-06-13)
 - Wrote `DATABASE_PLAN.md` at project root. **No tables built** — design only, per the brief.
 - Covers: Supabase Auth + the standard **`auth.users` ↔ `public.profiles` 1:1 split** (we don't add columns to `auth.users`); the **`approved` gate enforced in RLS** (not just UI — the DB refuses unapproved users); full schema for `profiles`, `events`, `guests`, `invitations`, `notifications` with enums; **RLS policies per table** incl. **public RSVP via `invite_token` through `SECURITY DEFINER` RPCs** (so the WhatsApp link never exposes the whole table); the signup→approve auth flow; a **3-phase migration plan**; new env vars; a **Privacy Policy update flag** (new PII collection — launch blocker, not changed here); and **8 open questions** for Maor.
