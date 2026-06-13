@@ -11,7 +11,7 @@ Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committe
 | 1 | Remove pricing → consultation model | ✅ done | `c9c05da` |
 | 2 | `DATABASE_PLAN.md` design doc | ✅ done | `5085d3c` |
 | 3 | DB schema (migrations) + auth helpers | ✅ files prepared (not applied to prod) | `fda9201` |
-| 4 | Signup/login/pending/admin + auth | ✅ built & smoke-tested | _this commit_ |
+| 4 | Signup/login/pending/admin + auth | ✅ built & smoke-tested | `64efb72` |
 
 Every task: `npm run build` passed with **0 errors** before commit. Nothing was committed on a failing build.
 
