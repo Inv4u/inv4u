@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="mb-12 flex flex-col items-center gap-4 border-b border-white/10 pb-12 text-center sm:flex-row sm:justify-between sm:text-right">
           <div>
             <h3 className="text-2xl font-black text-white md:text-3xl">
-              יש לכם שאלה?
+              יש לכם שאלה? קבעו שיחה
             </h3>
             <p className="mt-2 text-slate-400">
               נשמח לעזור ולהתאים לכם בדיוק את מה שצריך לאירוע שלכם.
@@ -18,7 +18,7 @@ export default function Footer() {
             href="/#contact"
             className="flex-shrink-0 rounded-full border-2 border-white/30 px-7 py-3 font-bold text-white transition hover:bg-white hover:text-brand-navy"
           >
-            דברו איתנו
+            קבעו שיחה
           </a>
         </div>
 
@@ -38,7 +38,7 @@ export default function Footer() {
             <ul className="space-y-2 text-slate-400">
               <li><a href="/#features" className="hover:text-white">יכולות</a></li>
               <li><a href="/#roadmap" className="hover:text-white">מסלולי אירועים</a></li>
-              <li><a href="/#calculator" className="hover:text-white">מחשבון חיסכון</a></li>
+              <li><a href="/#consultation" className="hover:text-white">שיחת ייעוץ</a></li>
               <li><a href="/#faq" className="hover:text-white">שאלות נפוצות</a></li>
               <li><a href="/privacy" className="hover:text-white">מדיניות פרטיות</a></li>
             </ul>

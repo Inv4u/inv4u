@@ -8,7 +8,7 @@ interface TrustSignal {
 }
 
 const trustSignals: TrustSignal[] = [
-  { icon: '🚀', label: 'התחלה בחינם — בלי כרטיס אשראי' },
+  { icon: '🚀', label: 'שיחת ייעוץ חינם — בלי התחייבות' },
   { icon: '💬', label: 'שליחה בוואטסאפ — בלי הורדת אפליקציה' },
   { icon: '🤖', label: 'AI בעברית טבעית למי שלא ענה' },
   { icon: '🇮🇱', label: 'תמיכה ישראלית, פיתוח מקומי' },
@@ -41,11 +41,11 @@ export default function HeroSection() {
 
           <p className="animate-fade-in-up animation-delay-200 mx-auto max-w-xl text-lg font-medium leading-relaxed text-slate-200 lg:mx-0">
             הזמנות דיגיטליות, אישורי הגעה אוטומטיים בוואטסאפ ובשיחות קוליות
-            חכמות, וניהול אורחים מלא — הכל ממקום אחד. והמשתלם ביותר בשוק.
+            חכמות, וניהול אורחים מלא — הכל ממקום אחד, עם ליווי אישי לכל אירוע.
           </p>
 
           <div className="flex animate-fade-in-up animation-delay-300 flex-col justify-center gap-4 pt-2 sm:flex-row lg:justify-start">
-            <a href="#contact" className="btn-primary">צרו את ההזמנה שלכם</a>
+            <a href="#contact" className="btn-primary">קבעו שיחת ייעוץ חינם</a>
             <DemoModal />
           </div>
 

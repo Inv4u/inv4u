@@ -25,7 +25,7 @@ const steps: Step[] = [
   {
     icon: '📊',
     title: 'מנהלים הכל מלוח בקרה אחד',
-    text: 'הושבה חכמה, ספירת אורחים, מעקב חי וייצוא נתונים. חוסכים שעות עבודה ואלפי שקלים על מנות.',
+    text: 'הושבה חכמה, ספירת אורחים, מעקב חי וייצוא נתונים. חוסכים שעות עבודה ומונעים מנות מיותרות.',
     gradient: 'from-brand-teal to-emerald-500',
   },
 ];
@@ -123,7 +123,7 @@ export default function DemoModal({ className = '' }: { className?: string }) {
                 </button>
                 {isLast ? (
                   <a href="#contact" onClick={() => setOpen(false)} className="btn-primary !py-2.5">
-                    התחילו בחינם
+                    קבעו שיחת ייעוץ
                   </a>
                 ) : (
                   <button

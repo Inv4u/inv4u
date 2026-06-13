@@ -6,12 +6,11 @@ import MidPageCTA from '@/components/MidPageCTA';
 import RoadmapSection from '@/components/RoadmapSection';
 import SeatingLayoutSection from '@/components/SeatingLayoutSection';
 import ComparisonSection from '@/components/ComparisonSection';
-import SavingsCalculatorSection from '@/components/SavingsCalculatorSection';
+import ConsultationSection from '@/components/ConsultationSection';
 import JoinBanner from '@/components/JoinBanner';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
-import StickyLaunchCTA from '@/components/StickyLaunchCTA';
 import Footer from '@/components/Footer';
 
 export default function Home() {
@@ -26,14 +25,14 @@ export default function Home() {
       <RoadmapSection />
       <SeatingLayoutSection />
       <ComparisonSection />
-      <SavingsCalculatorSection />
+      {/* personal consultation — replaces the old savings calculator */}
+      <ConsultationSection />
       {/* mid-page CTA #2 — the "be among the first" launch banner */}
       <JoinBanner />
       <FAQSection />
       <ContactSection />
       <Footer />
       <FloatingWhatsApp />
-      <StickyLaunchCTA />
     </main>
   );
 }

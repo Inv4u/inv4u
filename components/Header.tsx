@@ -4,7 +4,7 @@ const navLinks = [
   { href: '/how-it-works', label: 'איך זה עובד' },
   { href: '/#features', label: 'יכולות' },
   { href: '/#roadmap', label: 'מסלולים' },
-  { href: '/#calculator', label: 'מחשבון חיסכון' },
+  { href: '/#consultation', label: 'ייעוץ' },
   { href: '/#faq', label: 'שאלות' },
 ];
 
@@ -28,7 +28,7 @@ export default function Header() {
           href="/#contact"
           className="rounded-full bg-gradient-to-r from-brand-blue to-grape px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-grape/30 transition hover:-translate-y-0.5"
         >
-          התחילו בחינם
+          קבעו שיחת ייעוץ
         </a>
       </div>
     </header>

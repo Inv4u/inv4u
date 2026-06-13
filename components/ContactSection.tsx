@@ -62,7 +62,7 @@ export default function ContactSection() {
             מעוניינים? <span className="text-gradient-warm">נדבר</span>
           </h2>
           <p className="mt-4 text-xl text-slate-200">
-            השאירו פרטים ונחזור אליכם עם הצעת מחיר מותאמת אישית — תוך 3 שעות.
+            השאירו פרטים ונחזור אליכם לשיחת ייעוץ והתאמת חבילה לאירוע שלכם — תוך 3 שעות.
           </p>
 
           <div className="mt-8 space-y-4">

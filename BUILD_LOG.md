@@ -1,3 +1,45 @@
+# BUILD_LOG — Sequential Overnight Build: pricing → DB → auth (2026-06-13)
+
+Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committed + pushed one at a time. Newest entries at the top.
+
+---
+
+## TASK 1 — Remove pricing, shift to consultation model ✅ (2026-06-13T17:58Z)
+
+### 1A — Removed all pricing
+- **Deleted** `components/SavingsCalculatorSection.tsx` (₪300/meal, "money saved" — off-model) and removed it from the homepage.
+- **Deleted** `components/PricingSection.tsx` — it held ₪99/₪299 tiers. It was **dead code** (not imported anywhere), but deleted so no pricing tiers exist in the repo.
+- **Deleted** `components/StickyLaunchCTA.tsx` — its "תפסו מקום במחירי השקה" is launch-*pricing* messaging.
+- Softened money/savings copy that implied prices: `ComparisonSection` row ("חוסכים אלפי שקלים" → "הזמנת מנות מדויקת לפי אישורים אמיתיים"), `DemoModal` ("אלפי שקלים" → "מנות מיותרות"), `HowItWorks` step detail ("חוסכת אלפי שקלים" → "מונעת הזמנת מנות מיותרות"), `FAQSection` ("מהמשתלמים ביותר בשוק"/"כמה זה עולה?" → consultation framing "איך מתאימים לי חבילה?"), `HeroSection` paragraph ("המשתלם ביותר בשוק" → "ליווי אישי לכל אירוע"), `ContactSection` ("הצעת מחיר" → "שיחת ייעוץ והתאמת חבילה").
+- **New** `components/ConsultationSection.tsx` — replaces the calculator slot. Headline "שיחת ייעוץ אישית" + "התאמת חבילה לאירוע שלכם", phone **050-644-5570** shown prominently, three reach-us actions (lead form / WhatsApp / tel:).
+- No `/pricing` route existed. Verified **no `₪` symbol** anywhere on the rendered homepage.
+
+### 1B — Consultation CTAs
+- Hero primary CTA → **"קבעו שיחת ייעוץ חינם"**; Hero trust-signal "התחלה בחינם — בלי כרטיס אשראי" → "שיחת ייעוץ חינם — בלי התחייבות".
+- **Sticky floating button:** consolidated to ONE. Removed the redundant launch-pricing `StickyLaunchCTA` and updated the existing `FloatingWhatsApp` label to **"דברו איתנו עכשיו"** — it already opens WhatsApp to `wa.me/972506445570` (= 050-644-5570). (Decision: two floating WhatsApp buttons would be poor UX; one clear button honors the brief.)
+- Mid-page CTA default → **"מוכנים להפוך את האירוע שלכם לחוויה?"** + "קבעו שיחת ייעוץ חינם" → lead form.
+- Footer CTA → **"יש לכם שאלה? קבעו שיחה"** / button "קבעו שיחה".
+- Header nav CTA "התחילו בחינם" → "קבעו שיחת ייעוץ"; nav link "מחשבון חיסכון" → "ייעוץ" (#consultation). `DemoModal` final CTA → "קבעו שיחת ייעוץ".
+- All CTAs route to (a) `#contact` lead form, (b) WhatsApp, or (c) `tel:` — verified.
+
+### 1C — Lead form ⚠️ partial, by design (CONFLICT logged)
+- **`/api/leads` verified still working and untouched** (honeypot → 200 with no real lead; missing-email → 400). The CTA flows all point at the same working form.
+- **Requested field set (name + phone + event type + event date, dropping email) was NOT applied.** Reason: the hard rule says *do not modify `/api/leads`*, and that endpoint **requires** `email` (validates it, 400 without it) and the `leads` table only has `name/phone/email`. Dropping email would break capture; adding event-type/date would either be silently dropped (no DB columns) or require editing the endpoint + table + lead libs (`lib/email.ts`/`lib/twilio.ts`) — all off-limits this task. Adding fields that don't persist would be misleading, so I left the working 3-field form (name/phone/email) intact.
+- **Recommendation:** implement the richer consultation form (name + phone + event type + approximate date) against the **new schema from Tasks 2–4** (which introduces a proper `events` model), in a change where modifying the lead endpoint/table is permitted. Flagging this so it isn't forgotten.
+
+### Note on Privacy Policy (untouched, per hard rule)
+- `app/privacy/page.tsx` contains the phrase "להתאמת הצעות מחיר לצרכיך" (a legal purpose statement, not a displayed price). Left **unmodified** per the hard rule. It remains accurate under the consultation model (we do make tailored offers). Flagging for visibility only.
+
+### Validation
+- `npm run build` → **zero errors**, 12 routes. Localhost: consultation section + CTA + phone present; no `₪`, no calculator nav, no price claim, no launch-pricing sticky; `/api/leads` honeypot 200 + missing-email 400.
+
+### Files
+- Deleted: `SavingsCalculatorSection.tsx`, `PricingSection.tsx`, `StickyLaunchCTA.tsx`.
+- New: `ConsultationSection.tsx`.
+- Edited: `app/page.tsx`, `Header.tsx`, `Footer.tsx`, `HeroSection.tsx`, `MidPageCTA.tsx`, `ComparisonSection.tsx`, `ContactSection.tsx`, `FAQSection.tsx`, `FloatingWhatsApp.tsx`, `DemoModal.tsx`, `HowItWorks.tsx`.
+
+---
+
 # BUILD_LOG — Autonomous Overnight Build (2026-06-01 → 2026-06-02)
 
 Operator: Claude (Opus 4.8). Founder asleep. Autonomous, no permission prompts.

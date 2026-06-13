@@ -11,9 +11,9 @@ interface MidPageCTAProps {
  * blocks. Deliberately simple and calm — not a hard sell.
  */
 export default function MidPageCTA({
-  title = 'מוכנים להתחיל?',
-  subtitle = 'השאירו פרטים ונבנה יחד את ההזמנה לאירוע שלכם.',
-  buttonText = 'בואו נתחיל',
+  title = 'מוכנים להפוך את האירוע שלכם לחוויה?',
+  subtitle = 'השאירו פרטים ונקבע שיחת ייעוץ קצרה — נתאים יחד את הפתרון לאירוע שלכם.',
+  buttonText = 'קבעו שיחת ייעוץ חינם',
 }: MidPageCTAProps) {
   return (
     <section className="bg-white px-4 py-14" dir="rtl">
