@@ -172,3 +172,34 @@ Environment: Next 16.2.6 (Turbopack), React 18, Tailwind 3, TS 5. Build validate
 ## Commit
 - `de79eb9` — "Restructure: dedicated /how-it-works page, premium phone mockup, interactive demo, stronger CTAs" — pushed to `origin/main` at 627944e..de79eb9. Vercel auto-deploy triggered.
 
+---
+
+# BUILD_LOG — Bug Fix: phone mockup clicks (2026-06-13T17:41Z)
+
+Operator: Claude (Opus 4.8). Autonomous.
+
+## Symptom
+Nav dots/tabs on the interactive phone mockup didn't respond to clicks on the live site — only auto-advance worked.
+
+## Root cause
+A CSS stacking / hit-testing bug in `components/PhoneMockup.tsx`. The decorative **glow** div (`absolute -inset-8`, full-bleed blurred gradient) is a *positioned* element with no `pointer-events`. The **nav-tabs container was non-positioned (static)**. Per CSS paint order, positioned siblings render **above** non-positioned ones regardless of DOM order — so the glow overlay sat on top of the dot buttons and swallowed every click. The phone body still worked because it's `relative` (positioned) and later in the DOM; auto-advance worked because it's a timer, not a click. The floating "אישור התקבל" bubble (also `absolute`) had the same latent issue over the phone area.
+
+## Fix
+- Added `pointer-events-none` to the decorative **glow** div and the **floating confirmation bubble** (neither should ever intercept input). This is the actual fix.
+- Defense-in-depth: gave the tablist `relative z-20` so the controls are explicitly above any decorative layer.
+- `goTo(i)` already jumps **directly** to the requested index (`setIndex(i)`), so clicking stage 5 goes straight there without passing through 1–4.
+- Auto-advance now **pauses on any interaction** (`manual=true`) and **resumes after 30s of inactivity** (new `RESUME_AFTER_MS` timer via `resumeRef`, cleared on unmount).
+- Added `console.log('Stage clicked:', i)` inside the dot `onClick` for live verification.
+- Hover/active states retained (active dot widened + white; inactive dots brighten on hover; `focus-visible` rings on body + dots).
+
+## Validation
+- `npm run build` → zero errors.
+- Read the rendered HTML from `next start`: glow has `pointer-events-none`, tablist is `relative z-20`, bubble has `pointer-events-none`, **5 `role="tab"` buttons** render server-side. Confirmed `console.log('Stage clicked:')` is present in the built client JS chunk.
+- (Headless env — couldn't synthesize a real click; verified via rendered HTML + bundle inspection + the now-removed overlay blocker.)
+
+## Files changed
+- `components/PhoneMockup.tsx` only.
+
+## Did NOT touch
+- `.env.local`, `/api/leads`, Twilio, Privacy Policy. No secret rotation, no force push.
+

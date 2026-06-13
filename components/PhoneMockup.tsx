@@ -38,6 +38,8 @@ const STAGE_LABELS: Record<Stage, string> = {
 };
 
 const AUTO_ADVANCE_MS = 4600;
+// After a manual interaction, resume auto-advancing once the user is idle.
+const RESUME_AFTER_MS = 30000;
 
 export default function PhoneMockup() {
   const [index, setIndex] = useState(0);
@@ -50,6 +52,7 @@ export default function PhoneMockup() {
   const [guests, setGuests] = useState(2);
 
   const touchStartX = useRef<number | null>(null);
+  const resumeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Respect prefers-reduced-motion (no auto-advance for those users).
   useEffect(() => {
@@ -71,9 +74,20 @@ export default function PhoneMockup() {
   }, [manual, reduced, hovered]);
 
   const goTo = (i: number) => {
+    // Pause auto-advance and jump directly to the requested stage.
     setManual(true);
     setIndex(((i % STAGES.length) + STAGES.length) % STAGES.length);
+    // Resume auto-advance after 30s of no further interaction.
+    if (resumeRef.current) clearTimeout(resumeRef.current);
+    resumeRef.current = setTimeout(() => setManual(false), RESUME_AFTER_MS);
   };
+
+  // Clear any pending resume timer on unmount.
+  useEffect(() => {
+    return () => {
+      if (resumeRef.current) clearTimeout(resumeRef.current);
+    };
+  }, []);
 
   // Keyboard: arrows move between stages (RTL — right = previous).
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -105,8 +119,8 @@ export default function PhoneMockup() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* glow behind the phone */}
-      <div className="absolute -inset-8 bg-gradient-to-tr from-grape via-magenta to-brand-blue opacity-40 blur-3xl rounded-full" />
+      {/* glow behind the phone — decorative only, must never intercept clicks */}
+      <div className="pointer-events-none absolute -inset-8 bg-gradient-to-tr from-grape via-magenta to-brand-blue opacity-40 blur-3xl rounded-full" />
 
       {/* phone body — focusable carousel, keyboard + swipe enabled */}
       <div
@@ -146,9 +160,10 @@ export default function PhoneMockup() {
         </span>
       </div>
 
-      {/* stage navigation tabs */}
+      {/* stage navigation tabs — relative + z-20 so they sit above the
+          decorative glow/bubble overlays and reliably receive clicks */}
       <div
-        className="mt-4 flex items-center justify-center gap-2"
+        className="relative z-20 mt-4 flex items-center justify-center gap-2"
         role="tablist"
         aria-label="ניווט בין מסכי ההדגמה"
       >
@@ -156,7 +171,10 @@ export default function PhoneMockup() {
           <button
             key={s}
             role="tab"
-            onClick={() => goTo(i)}
+            onClick={() => {
+              console.log('Stage clicked:', i);
+              goTo(i);
+            }}
             aria-selected={i === index}
             aria-current={i === index ? 'true' : undefined}
             aria-label={STAGE_LABELS[s]}
@@ -170,8 +188,8 @@ export default function PhoneMockup() {
         ))}
       </div>
 
-      {/* floating confirmation bubble */}
-      <div className="absolute bottom-16 -left-4 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-xl animate-floaty">
+      {/* floating confirmation bubble — decorative, must not block clicks */}
+      <div className="pointer-events-none absolute bottom-16 -left-4 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-xl animate-floaty">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366] text-white">✓</span>
         <div className="leading-tight">
           <p className="text-[11px] font-bold text-slate-800">אישור התקבל</p>
