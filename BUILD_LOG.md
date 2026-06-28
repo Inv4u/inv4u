@@ -98,6 +98,28 @@ drop function if exists public.is_approved(uuid) cascade;
 
 ---
 
+## TASK 3 — Signup / Login / pages ✅ (2026-06-28)
+
+- **`/signup`** (Hebrew RTL) — full_name + (email OR phone) + password (min 8). Client validation
+  reuses `lib/validation` (`isValidEmail`, `isValidIsraeliPhone` — e.g. `050-1234567`). On submit:
+  `signUp()` creates the auth user → the DB trigger inserts the `users` row **and seeds all 6
+  `feature_access` rows locked** → POSTs `/api/auth/notify-signup` (records `admin_notifications` +
+  emails inv4u.business@gmail.com + WhatsApps `whatsapp:+972506445570` with the exact copy
+  `משתמש חדש נרשם: …`) → redirects to **/dashboard** (no approval wait).
+- **`/login`** (Hebrew RTL) — email OR phone + password → admins to `/admin`, everyone else to
+  `/dashboard` (honors a safe `?next=`). Added **"שכחתי סיסמה"** → `/forgot-password`.
+- **`/forgot-password`** (new placeholder) — automatic reset not wired yet; offers WhatsApp + phone
+  to reset manually. Honest about what's not built.
+
+Note: the signup feature-seeding + admin_notifications insert run server-side (trigger + service
+role), so they work under RLS without exposing privileged writes to the browser.
+
+### Validation
+- `npm run build` → **0 errors**, 16 routes (`/forgot-password` added). Pages render RTL.
+  (Runtime signup→dashboard cycle needs the migrations applied — see Task 1.)
+
+---
+
 # BUILD_LOG — Sequential Overnight Build: pricing → DB → auth (2026-06-13)
 
 Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committed + pushed one at a time. Newest entries at the top.

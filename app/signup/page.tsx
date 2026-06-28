@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signUp } from '@/lib/auth';
+import { isValidEmail, isValidIsraeliPhone } from '@/lib/validation';
 import { AuthShell, Field, translateAuthError } from '@/components/AuthShell';
 
 export default function SignupPage() {
@@ -18,12 +19,24 @@ export default function SignupPage() {
     e.preventDefault();
     setError('');
 
-    if (fullName.trim().length < 2) {
+    const name = fullName.trim();
+    const id = identifier.trim();
+    const isEmail = id.includes('@');
+
+    if (name.length < 2) {
       setError('נא להזין שם מלא (לפחות 2 תווים)');
       return;
     }
-    if (!identifier.trim()) {
+    if (!id) {
       setError('נא להזין אימייל או מספר טלפון');
+      return;
+    }
+    if (isEmail && !isValidEmail(id)) {
+      setError('כתובת האימייל אינה תקינה');
+      return;
+    }
+    if (!isEmail && !isValidIsraeliPhone(id)) {
+      setError('מספר הטלפון אינו תקין (לדוגמה: 050-1234567)');
       return;
     }
     if (password.length < 8) {
@@ -31,13 +44,12 @@ export default function SignupPage() {
       return;
     }
 
-    const isEmail = identifier.includes('@');
     setSubmitting(true);
     const result = await signUp({
-      email: isEmail ? identifier : undefined,
-      phone: isEmail ? undefined : identifier,
+      email: isEmail ? id : undefined,
+      phone: isEmail ? undefined : id,
       password,
-      full_name: fullName,
+      full_name: name,
     });
     if (!result.ok) {
       setError(translateAuthError(result.error));
@@ -46,28 +58,31 @@ export default function SignupPage() {
     }
 
     // Alert Maor (best-effort — never blocks the signup). The 6 locked features
-    // are seeded by the DB signup trigger.
+    // are seeded automatically by the DB signup trigger.
     try {
       await fetch('/api/auth/notify-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: result.userId,
-          fullName,
-          email: isEmail ? identifier : '',
-          phone: isEmail ? '' : identifier,
+          fullName: name,
+          email: isEmail ? id : '',
+          phone: isEmail ? '' : id,
         }),
       });
     } catch {
-      /* ignore */
+      /* best-effort */
     }
 
     router.push('/dashboard');
   };
 
   return (
-    <AuthShell title="הרשמה ל-INV4U" subtitle="צרו חשבון — נאשר אתכם ונצא לדרך">
-      <form onSubmit={handleSubmit} className="space-y-5">
+    <AuthShell
+      title="הרשמה ל-inv4u"
+      subtitle="צרו חשבון בחינם — ונסגור את חבילת האירוע בשיחה קצרה"
+    >
+      <form onSubmit={handleSubmit} className="space-y-5" noValidate>
         <Field
           id="fullName"
           label="שם מלא"
@@ -81,7 +96,7 @@ export default function SignupPage() {
           label="אימייל או טלפון"
           value={identifier}
           onChange={setIdentifier}
-          placeholder="name@email.com או 050-0000000"
+          placeholder="name@email.com או 050-1234567"
           autoComplete="username"
         />
         <Field

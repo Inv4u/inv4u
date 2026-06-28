@@ -62,6 +62,15 @@ function LoginForm() {
         autoComplete="current-password"
       />
 
+      <div className="text-left">
+        <Link
+          href="/forgot-password"
+          className="text-sm font-bold text-brand-blue hover:underline"
+        >
+          שכחתי סיסמה
+        </Link>
+      </div>
+
       {error && (
         <p className="rounded-lg bg-rose-50 px-4 py-2 text-center text-sm font-bold text-rose-600">
           {error}
