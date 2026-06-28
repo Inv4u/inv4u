@@ -26,8 +26,8 @@ html {
 }
 
 body {
-  background-color: #0B1031;
-  color: #1a1a1a;
+  background-color: #ffffff;
+  color: #111827;
   line-height: 1.6;
   font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
@@ -39,23 +39,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @layer components {
-  /* Vibrant animated gradient text */
+  /* Solid accent (was a rainbow gradient — kept the class name so existing
+     markup works, but it now reads as a single restrained blue/navy accent). */
   .text-gradient {
-    @apply bg-gradient-to-r from-brand-blue via-grape to-magenta bg-clip-text text-transparent;
+    @apply text-brand-blue;
   }
   .text-gradient-warm {
-    @apply bg-gradient-to-r from-sunset via-magenta to-grape bg-clip-text text-transparent;
+    @apply text-brand-blue;
   }
   .text-gradient-cool {
-    @apply bg-gradient-to-r from-sky via-brand-blue to-brand-teal bg-clip-text text-transparent;
+    @apply text-brand-blue;
   }
 
-  /* Primary CTA with gradient + lift */
+  /* Primary CTA: solid navy, subtle hover, no gradient/glow/lift. */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-gradient-to-r from-brand-blue to-grape text-white font-bold py-4 px-10 rounded-full transition-all duration-300 shadow-lg shadow-grape/30 hover:shadow-2xl hover:shadow-grape/50 hover:-translate-y-0.5;
+    @apply inline-flex items-center justify-center gap-2 bg-brand-navy text-white font-semibold py-3 px-7 rounded-lg transition-colors duration-200 hover:bg-[#0a1538];
   }
+  /* Secondary: works on both light and dark backgrounds via currentColor. */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 border-2 border-white/70 text-white font-bold py-4 px-10 rounded-full transition-all duration-300 hover:bg-white hover:text-brand-navy;
+    @apply inline-flex items-center justify-center gap-2 border border-current font-semibold py-3 px-7 rounded-lg transition-colors duration-200;
   }
 
   .badge-check {
