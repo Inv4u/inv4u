@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { CircleCheck } from 'lucide-react';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import SignOutButton from '@/components/SignOutButton';
 import { getFeatureMeta } from '@/lib/featureCatalog';
@@ -17,10 +18,10 @@ export default async function FeaturePage({
 }) {
   const { feature } = await params;
 
-  // Unknown key → back to dashboard.
   if (!FEATURE_KEYS.includes(feature as FeatureKey)) redirect('/dashboard');
   const key = feature as FeatureKey;
   const meta = getFeatureMeta(key);
+  const Icon = meta?.icon;
 
   const supabase = await getSupabaseServer();
   const {
@@ -28,7 +29,6 @@ export default async function FeaturePage({
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // Gate: the feature must be unlocked for this user.
   const { data } = await supabase
     .from('feature_access')
     .select('unlocked')
@@ -39,28 +39,33 @@ export default async function FeaturePage({
   if (!unlocked) redirect('/dashboard');
 
   return (
-    <main className="min-h-screen bg-[#F4F5F7]" dir="rtl">
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-        <Link href="/dashboard" className="text-xl font-black text-brand-navy">
-          INV<span className="text-brand-blue">4</span>U
-        </Link>
-        <SignOutButton />
+    <main className="min-h-screen bg-white" dir="rtl">
+      <header className="border-b border-gray-200">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <Link href="/dashboard" className="text-xl font-extrabold text-brand-navy">
+            INV<span className="text-brand-blue">4</span>U
+          </Link>
+          <SignOutButton />
+        </div>
       </header>
 
-      <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-white text-5xl shadow-sm">
-          {meta?.icon ?? '✨'}
-        </div>
-        <h1 className="mt-6 text-3xl font-black text-brand-navy">{meta?.name}</h1>
-        <p className="mt-3 text-lg text-slate-600">{meta?.description}</p>
-        <p className="mt-6 inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-bold text-emerald-700">
-          ✅ הפיצ&apos;ר פתוח בחשבון שלכם
+      <div className="mx-auto max-w-2xl px-6 py-20 text-center">
+        {Icon && (
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg border border-gray-200">
+            <Icon className="h-7 w-7 text-brand-navy" strokeWidth={1.75} />
+          </span>
+        )}
+        <h1 className="mt-6 text-2xl font-extrabold text-brand-navy">{meta?.name}</h1>
+        <p className="mt-2 text-gray-500">{meta?.description}</p>
+        <p className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-600">
+          <CircleCheck className="h-4 w-4" strokeWidth={2} />
+          הפיצ&apos;ר פתוח בחשבון שלכם
         </p>
-        <p className="mt-6 text-slate-500">המסך המלא של הפיצ&apos;ר בבנייה.</p>
+        <p className="mt-6 text-gray-400">המסך המלא בבנייה.</p>
 
         <Link
           href="/dashboard"
-          className="mt-8 inline-block font-bold text-brand-blue hover:underline"
+          className="mt-8 inline-block text-sm font-semibold text-brand-blue hover:underline"
         >
           ← חזרה לדשבורד
         </Link>

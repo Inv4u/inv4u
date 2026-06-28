@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { MessageSquare, Phone, Calendar, MapPin } from 'lucide-react';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import SignOutButton from '@/components/SignOutButton';
 import FeatureGrid from '@/components/dashboard/FeatureGrid';
@@ -27,8 +28,6 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // Profile, feature access, and any event assigned to this user (RLS scopes
-  // all three to the caller).
   const [{ data: profileData }, { data: featureData }, { data: eventData }] =
     await Promise.all([
       supabase.from('users').select('*').eq('id', user.id).maybeSingle(),
@@ -45,164 +44,111 @@ export default async function DashboardPage() {
   const features = (featureData as FeatureAccess[] | null) ?? [];
   const event = ((eventData as EventRow[] | null) ?? [])[0] ?? null;
 
-  const firstName = profile?.full_name?.trim().split(/\s+/)[0] || 'אורח';
+  const firstName = profile?.full_name?.trim().split(/\s+/)[0] || '';
   const unlockedKeys: FeatureKey[] = features
     .filter((f) => f.unlocked)
     .map((f) => f.feature_key);
 
   return (
-    <main className="min-h-screen bg-[#F4F5F7]" dir="rtl">
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-        <span className="text-xl font-black text-brand-navy">
-          INV<span className="text-brand-blue">4</span>U
-        </span>
-        <SignOutButton />
+    <main className="min-h-screen bg-white" dir="rtl">
+      <header className="border-b border-gray-200">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <span className="text-xl font-extrabold text-brand-navy">
+            INV<span className="text-brand-blue">4</span>U
+          </span>
+          <SignOutButton />
+        </div>
       </header>
 
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        {/* TOP BANNER — gold/navy gradient */}
-        <section
-          className="overflow-hidden rounded-3xl p-7 text-white shadow-xl sm:p-9"
-          style={{
-            background:
-              'linear-gradient(120deg, #0D1B4B 0%, #1A2A6B 55%, #C9A86C 140%)',
-          }}
-        >
-          <div className="flex flex-col items-start gap-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-2xl font-black sm:text-3xl">
-                מוכנים להתחיל? בואו נסגור את האירוע שלכם בשיחה קצרה
-              </h2>
-              <p className="mt-2 max-w-xl text-white/80">
-                נתאם את חבילת האירוע שמתאימה לכם בדיוק, ונפתח את הפיצ&apos;רים בחשבון.
-              </p>
-            </div>
-            <div className="flex w-full flex-shrink-0 flex-col gap-3 sm:flex-row md:w-auto md:flex-col lg:flex-row">
-              <a
-                href={whatsappTo(DASHBOARD_BANNER_WHATSAPP)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full bg-emerald-500 px-6 py-3 text-center font-bold text-white shadow-lg transition hover:bg-emerald-600"
-              >
-                💬 דברו איתנו בוואטסאפ
-              </a>
-              <a
-                href={telHref}
-                dir="ltr"
-                className="rounded-full bg-white px-6 py-3 text-center font-bold text-brand-navy shadow-lg transition hover:bg-slate-100"
-              >
-                📞 050-644-5570
-              </a>
-            </div>
-          </div>
-        </section>
+      <div className="mx-auto max-w-5xl px-6 py-10">
+        {/* Welcome */}
+        <h1 className="text-2xl font-extrabold text-brand-navy">
+          שלום{firstName ? ` ${firstName}` : ''}
+        </h1>
 
-        {/* WELCOME */}
-        <section className="mt-8">
-          <h1 className="text-2xl font-black text-brand-navy sm:text-3xl">
-            שלום {firstName}, ברוכים הבאים ל-inv4u
-          </h1>
-          <p className="mt-2 max-w-2xl leading-relaxed text-slate-600">
-            החשבון שלכם פתוח אבל הפיצ&apos;רים נעולים עד שנתאם איתכם את חבילת האירוע
-            שלכם בשיחה קצרה.
+        {/* Banner — clean white card */}
+        <div className="mt-6 rounded-lg border border-gray-200 p-6 sm:p-8">
+          <h2 className="text-xl font-semibold text-brand-navy">
+            החשבון פתוח. נסגור את החבילה בשיחה.
+          </h2>
+          <p className="mt-2 text-gray-500">
+            הפיצ&apos;רים נפתחים לאחר שיחה קצרה להתאמת החבילה לאירוע שלכם.
           </p>
-        </section>
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <a
+              href={whatsappTo(DASHBOARD_BANNER_WHATSAPP)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-navy px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0a1538]"
+            >
+              <MessageSquare className="h-4 w-4" strokeWidth={2} />
+              שיחה בוואטסאפ
+            </a>
+            <a
+              href={telHref}
+              dir="ltr"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-6 py-3 font-semibold text-brand-navy transition-colors hover:bg-gray-50"
+            >
+              <Phone className="h-4 w-4" strokeWidth={2} />
+              050-644-5570
+            </a>
+          </div>
+        </div>
 
-        {/* EVENT STATUS — only when Maor has assigned an event */}
+        {/* Event status — when assigned */}
         {event && (
-          <section className="mt-6 rounded-3xl border border-brand-blue/20 bg-white p-6 shadow-sm">
+          <div className="mt-6 rounded-lg border border-gray-200 p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wide text-brand-blue">
+                <span className="text-xs font-semibold uppercase tracking-wide text-brand-blue">
                   {EVENT_TYPE_LABELS[event.event_type]}
                 </span>
-                <h3 className="mt-1 text-xl font-black text-brand-navy">
+                <h3 className="mt-1 text-lg font-semibold text-brand-navy">
                   {eventTitle(event)}
                 </h3>
               </div>
-              <div className="text-left text-sm text-slate-600">
+              <div className="space-y-1 text-left text-sm text-gray-500">
                 {event.event_date && (
-                  <div className="font-bold text-slate-800">
-                    📅 {formatHebrewDate(event.event_date)}
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4" strokeWidth={2} />
+                    {formatHebrewDate(event.event_date)}
                   </div>
                 )}
                 {event.venue_name && (
-                  <div className="mt-1">
-                    📍 {event.venue_name}
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="h-4 w-4" strokeWidth={2} />
+                    {event.venue_name}
                     {event.venue_address ? `, ${event.venue_address}` : ''}
                   </div>
                 )}
               </div>
             </div>
-          </section>
+          </div>
         )}
 
-        {/* FEATURE GRID */}
-        <section className="mt-8">
-          <h2 className="mb-4 text-lg font-black text-brand-navy">
-            הפיצ&apos;רים שלכם
-          </h2>
-          <FeatureGrid unlockedKeys={unlockedKeys} />
-        </section>
+        {/* Feature grid */}
+        <h2 className="mb-4 mt-12 text-sm font-semibold uppercase tracking-wide text-gray-400">
+          הפיצ&apos;רים שלכם
+        </h2>
+        <FeatureGrid unlockedKeys={unlockedKeys} />
 
-        {/* INFO CARD — always visible */}
-        <section className="mt-8 rounded-3xl border border-slate-100 bg-white p-7 shadow-sm">
-          <h2 className="text-xl font-black text-brand-navy">
-            איך להעלות רשימת מוזמנים
-          </h2>
-          <p className="mt-2 text-slate-600">
-            לאחר שנסגור איתכם את חבילת האירוע, תוכלו להעלות רשימת מוזמנים בקלות:
+        {/* Info — simple, at the bottom */}
+        <div className="mt-10 rounded-lg border border-gray-200 p-6">
+          <h2 className="font-semibold text-brand-navy">העלאת רשימת מוזמנים</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            לאחר סגירת החבילה תוכלו להעלות רשימת מוזמנים מקובץ Excel או להוסיף ידנית.
           </p>
-
-          <ol className="mt-5 space-y-4">
-            <Step n={1} title="מכינים קובץ Excel / CSV">
-              עם העמודות: שם מלא, טלפון, מספר אורחים, הערות
-            </Step>
-            <Step n={2} title="מעלים את הרשימה">
-              לחיצה על העלאה, גרירה של הקובץ, או הוספה ידנית של אורחים
-            </Step>
-            <Step n={3} title="בודקים ומאשרים">
-              עוברים על הרשימה, מתקנים אם צריך, ושולחים
-            </Step>
-          </ol>
-
-          <div className="mt-6 rounded-2xl bg-slate-50 p-5 text-center">
-            <p className="font-bold text-brand-navy">
-              מוכנים? נשמח לשמוע מכם
-            </p>
-            <a
-              href={whatsappTo(DASHBOARD_BANNER_WHATSAPP)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-block rounded-full bg-emerald-500 px-6 py-2.5 font-bold text-white transition hover:bg-emerald-600"
-            >
-              💬 דברו איתנו בוואטסאפ
-            </a>
-          </div>
-        </section>
+          <a
+            href={whatsappTo(DASHBOARD_BANNER_WHATSAPP)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-blue hover:underline"
+          >
+            <MessageSquare className="h-4 w-4" strokeWidth={2} />
+            דברו איתנו
+          </a>
+        </div>
       </div>
     </main>
-  );
-}
-
-function Step({
-  n,
-  title,
-  children,
-}: {
-  n: number;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <li className="flex gap-4">
-      <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-blue text-sm font-black text-white">
-        {n}
-      </span>
-      <div>
-        <div className="font-bold text-brand-navy">{title}</div>
-        <p className="mt-0.5 text-sm leading-relaxed text-slate-600">{children}</p>
-      </div>
-    </li>
   );
 }

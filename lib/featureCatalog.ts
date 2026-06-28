@@ -1,15 +1,24 @@
+import type { LucideIcon } from 'lucide-react';
+import {
+  MessageSquare,
+  PhoneCall,
+  Mail,
+  BarChart3,
+  Grid3x3,
+  Users,
+} from 'lucide-react';
 import type { FeatureKey } from '@/database.types';
 import { site } from '@/lib/site';
 
 /**
  * The 6 dashboard features — single source of truth for icon / name / copy,
  * in display order. Keyed by the `feature_key` enum so it lines up 1:1 with the
- * `feature_access` rows. (Distinct from `lib/features.ts`, which powers the
- * public marketing pages.)
+ * `feature_access` rows. Icons are Lucide components (no emojis in UI chrome).
+ * (Distinct from `lib/features.ts`, which powers the public marketing pages.)
  */
 export interface FeatureMeta {
   key: FeatureKey;
-  icon: string;
+  icon: LucideIcon;
   name: string;
   description: string;
 }
@@ -17,39 +26,39 @@ export interface FeatureMeta {
 export const FEATURE_CATALOG: FeatureMeta[] = [
   {
     key: 'whatsapp_invitations',
-    icon: '📱',
+    icon: MessageSquare,
     name: 'הזמנות WhatsApp',
-    description: 'שליחת הזמנות מותאמות אישית לכל אורח דרך WhatsApp',
+    description: 'הזמנות אישיות בוואטסאפ',
   },
   {
     key: 'ai_calling',
-    icon: '🤖',
-    name: 'שיחות AI אוטומטיות',
-    description: 'AI מתקשר לאורחים שלא הגיבו ומקבל אישור הגעה בעברית',
+    icon: PhoneCall,
+    name: 'שיחות AI',
+    description: 'שיחות AI לאישורי הגעה',
   },
   {
     key: 'email_backup',
-    icon: '📧',
+    icon: Mail,
     name: 'גיבוי אימייל',
-    description: 'שליחת הזמנות בנוסף גם דרך אימייל למי שאין לו WhatsApp',
+    description: 'גיבוי באימייל',
   },
   {
     key: 'live_dashboard',
-    icon: '📊',
+    icon: BarChart3,
     name: 'דשבורד חי',
-    description: 'מעקב בזמן אמת אחר אישורי ההגעה, הצגה במחשב ובטלפון',
+    description: 'דשבורד בזמן אמת',
   },
   {
     key: 'seating_map',
-    icon: '🪑',
-    name: 'מפת הושבה אינטראקטיבית',
-    description: 'סידור מקומות חכם, מקושר לדשבורד',
+    icon: Grid3x3,
+    name: 'מפת הושבה',
+    description: 'סידורי הושבה אינטראקטיביים',
   },
   {
     key: 'guest_management',
-    icon: '📋',
-    name: 'ניהול רשימת מוזמנים',
-    description: 'העלאה, עריכה, חלוקה לקבוצות, ייצוא',
+    icon: Users,
+    name: 'ניהול מוזמנים',
+    description: 'ניהול רשימת מוזמנים',
   },
 ];
 
