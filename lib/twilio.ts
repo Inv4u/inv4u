@@ -1,6 +1,6 @@
 import twilio from 'twilio';
 
-// Sends a WhatsApp notification to the business owner on every new lead,
+// Sends a WhatsApp notification to the business owner on every new lead/signup,
 // using the Twilio API. Requires the following environment variables:
 //   TWILIO_ACCOUNT_SID        - Twilio account SID (sensitive)
 //   TWILIO_AUTH_TOKEN         - Twilio auth token (sensitive)
@@ -20,45 +20,75 @@ export interface Lead {
   message?: string;
 }
 
+export interface NotifyResult {
+  ok: boolean;
+  error?: string;
+  recipient?: string;
+}
+
 /**
- * Send a WhatsApp notification about a new lead.
- *
- * Best-effort by design: never throws. Any missing config or Twilio API
- * failure is logged and swallowed so the lead-capture flow (Supabase insert
- * + email) is never broken by WhatsApp delivery problems.
+ * Ensure a WhatsApp address carries the `whatsapp:` channel prefix Twilio
+ * requires. Twilio fails silently-ish (throws "Channel not found"-type errors)
+ * if `from`/`to` are bare E.164 numbers — a very common misconfiguration. We
+ * normalise here so it works whether the env var has the prefix or not.
  */
-export async function sendLeadNotification(lead: Lead): Promise<void> {
+function asWhatsApp(value: string): string {
+  const v = value.trim();
+  return v.startsWith('whatsapp:') ? v : `whatsapp:${v}`;
+}
+
+/**
+ * Send a WhatsApp notification about a new lead/signup.
+ *
+ * Best-effort by design: never throws (so it can't break lead capture / signup).
+ * Returns a structured result and logs every attempt so failures are visible in
+ * Vercel logs and to the /api/admin/test-notifications endpoint.
+ */
+export async function sendLeadNotification(lead: Lead): Promise<NotifyResult> {
   if (!accountSid || !authToken || !whatsappFrom || !whatsappTo) {
-    console.error(
-      '[twilio] Skipping WhatsApp notification: missing one or more of ' +
-        'TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM, NOTIFICATION_WHATSAPP_TO'
-    );
-    return;
+    const missing = [
+      !accountSid && 'TWILIO_ACCOUNT_SID',
+      !authToken && 'TWILIO_AUTH_TOKEN',
+      !whatsappFrom && 'TWILIO_WHATSAPP_FROM',
+      !whatsappTo && 'NOTIFICATION_WHATSAPP_TO',
+    ]
+      .filter(Boolean)
+      .join(', ');
+    const error = `missing env: ${missing}`;
+    console.error(`[twilio] WhatsApp notification failed: ${error}`);
+    return { ok: false, error };
   }
+
+  const to = asWhatsApp(whatsappTo);
+  const from = asWhatsApp(whatsappFrom);
+  console.log(`[twilio] WhatsApp notification attempted with: ${to}`);
 
   try {
     const client = twilio(accountSid, authToken);
-    await client.messages.create({
-      from: whatsappFrom,
-      to: whatsappTo,
+    const msg = await client.messages.create({
+      from,
+      to,
       body: buildMessage(lead),
     });
+    console.log(`[twilio] WhatsApp notification success (sid: ${msg.sid})`);
+    return { ok: true, recipient: to };
   } catch (err) {
-    console.error('[twilio] WhatsApp notification failed:', err);
-    // Swallow: the lead is already saved and the email path is independent.
+    const error = err instanceof Error ? err.message : String(err);
+    console.error(`[twilio] WhatsApp notification failed: ${error}`);
+    return { ok: false, error, recipient: to };
   }
 }
 
 function buildMessage(lead: Lead): string {
-  const lines = [
+  if (lead.message) {
+    // A purpose-built message (e.g. signup alert) — send it verbatim.
+    return lead.message;
+  }
+  return [
     '🎉 ליד חדש מהאתר INV4U',
     '',
     `👤 שם: ${lead.name}`,
     `📞 טלפון: ${lead.phone}`,
     `✉️ אימייל: ${lead.email}`,
-  ];
-  if (lead.message) {
-    lines.push(`💬 הודעה: ${lead.message}`);
-  }
-  return lines.join('\n');
+  ].join('\n');
 }

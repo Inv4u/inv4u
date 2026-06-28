@@ -17,10 +17,17 @@ export interface Lead {
 
 export async function sendLeadNotification(lead: Lead): Promise<void> {
   if (!gmailUser || !gmailAppPassword) {
-    throw new Error(
-      'Missing GMAIL_USER / GMAIL_APP_PASSWORD environment variables'
-    );
+    const missing = [
+      !gmailUser && 'GMAIL_USER',
+      !gmailAppPassword && 'GMAIL_APP_PASSWORD',
+    ]
+      .filter(Boolean)
+      .join(', ');
+    console.error(`[email] notification failed: missing env: ${missing}`);
+    throw new Error(`Missing ${missing} environment variable(s)`);
   }
+
+  console.log(`[email] notification attempted with: ${NOTIFY_TO}`);
 
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -57,14 +64,21 @@ export async function sendLeadNotification(lead: Lead): Promise<void> {
     </div>
   `;
 
-  await transporter.sendMail({
-    from: `"Inv4u Leads" <${gmailUser}>`,
-    to: NOTIFY_TO,
-    replyTo: lead.email,
-    subject,
-    text,
-    html,
-  });
+  try {
+    await transporter.sendMail({
+      from: `"Inv4u Leads" <${gmailUser}>`,
+      to: NOTIFY_TO,
+      replyTo: lead.email,
+      subject,
+      text,
+      html,
+    });
+    console.log('[email] notification success');
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    console.error(`[email] notification failed: ${error}`);
+    throw err;
+  }
 }
 
 function escapeHtml(value: string): string {

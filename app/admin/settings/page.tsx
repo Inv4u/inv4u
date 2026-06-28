@@ -1,5 +1,6 @@
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { site } from '@/lib/site';
+import TestNotificationsButton from '@/components/admin/TestNotificationsButton';
 import type { User } from '@/database.types';
 
 export const dynamic = 'force-dynamic';
@@ -45,6 +46,17 @@ export default async function AdminSettingsPage() {
           <span className="font-bold text-slate-700">משתמשים → כרטיס משתמש</span>.
           כל פתיחה נרשמת עם השם והתאריך שלכם.
         </p>
+      </section>
+
+      <section className="mt-6 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-black text-brand-navy">בדיקת התראות</h2>
+        <p className="mt-2 text-sm leading-relaxed text-slate-500">
+          שולח אימייל ווואטסאפ בדיקה לכתובת/מספר העסק, ומראה אם כל ערוץ עבד. שימושי
+          לאחר שינוי משתני סביבה ב-Vercel.
+        </p>
+        <div className="mt-4">
+          <TestNotificationsButton />
+        </div>
       </section>
     </div>
   );

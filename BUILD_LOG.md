@@ -34,6 +34,43 @@ only do DB writes), so there was nothing else to convert.
 
 ---
 
+## TASK 2 — Debug + fix custom notifications ✅ (2026-06-28)
+
+I can't read Maor's live env values from here, so I fixed the **most likely silent-failure cause**,
+made every attempt **loud in the logs**, and shipped an **independent test endpoint** so the real
+cause is now one click away.
+
+**Most likely root cause — missing `whatsapp:` channel prefix.** Twilio WhatsApp requires both `from`
+and `to` to be `whatsapp:+E164`. If `NOTIFICATION_WHATSAPP_TO` / `TWILIO_WHATSAPP_FROM` were stored as
+bare numbers (`+972506445570`), `messages.create` throws and the old code **swallowed it silently**
+(`return` with only a `console.error`). Fixed: `lib/twilio.ts` now **normalises** both via `asWhatsApp()`
+(adds the prefix only if absent — safe whether or not the env var already has it).
+
+**Other candidates flagged (need the logs/test to confirm):** wrong/missing `GMAIL_APP_PASSWORD`
+(must be a 16-char App Password, not the account password); Twilio **sandbox** `from` only delivers to
+numbers that have joined the sandbox; `LEAD_NOTIFY_TO` unset (defaults to inv4u.business@gmail.com).
+
+**Comprehensive logging added** (visible in Vercel → Logs):
+- `lib/email.ts` — `[email] notification attempted with: <recipient>` → `[email] notification success`
+  or `[email] notification failed: <message>` (still throws, so `/api/leads` behaviour is unchanged).
+- `lib/twilio.ts` — `[twilio] WhatsApp notification attempted with: <recipient>` → success (with SID)
+  or `failed: <message>`; now returns a structured `NotifyResult` (never throws). Also logs exactly
+  which env vars are missing.
+- `lib/notify.ts` — logs the in-app row insert result; the 3 channels run via `Promise.allSettled`.
+
+**New `/api/admin/test-notifications` (admin-only POST)** — fires BOTH channels with a test payload and
+returns `{ ok, email: {ok,error?}, whatsapp: {ok,error?} }`. Awaits on purpose (it's a diagnostic).
+Wired to a **"שליחת התראות בדיקה"** button on **/admin/settings** so Maor can test in one click after
+changing Vercel env vars — no curl needed.
+
+**Did NOT modify `/api/leads`** (only the shared libs it reuses — logging + the WhatsApp prefix fix,
+which helps lead notifications too without changing the endpoint).
+
+### Validation
+- `npm run build` → **0 errors**, 17 app routes (`/api/admin/test-notifications` added).
+
+---
+
 # BUILD_LOG — SESSION 2: Database + Auth + Locked Dashboard (2026-06-28)
 
 Operator: Claude (Opus 4.8). Autonomous. Business model: phone-sales, NOT freemium.
