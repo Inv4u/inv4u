@@ -53,6 +53,7 @@ export interface User {
   phone: string | null;
   full_name: string;
   role: UserRole;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }

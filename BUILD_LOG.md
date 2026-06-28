@@ -14,6 +14,64 @@ header as they complete.
 
 ---
 
+## ★ SESSION 2 FINAL SUMMARY — all 5 tasks complete (read this first)
+
+| # | Task | Result | Commit |
+|---|------|--------|--------|
+| 1 | DB schema — fresh `users` + `feature_access` migrations | ✅ files prepared (not applied to prod) | `12955c8` |
+| 2 | Auth helpers + types (new model) | ✅ done | `dbb2c03` |
+| 3 | Signup / Login / forgot-password | ✅ done | `9b8b7ea` |
+| 4 | The Locked Dashboard | ✅ done | `ae31d16` |
+| 5 | /admin dashboard (+ migration 0004) | ✅ done | _(this commit)_ |
+
+Every task: `npm run build` → **0 errors** before commit. Nothing committed on a failing build.
+**22 routes** total. RTL throughout, mobile-first, no `any`.
+
+### 🔧 What Maor must do manually before auth works (in order)
+1. **Apply migrations** — Supabase Dashboard → SQL Editor → run **in order**:
+   `0001_users_and_feature_access.sql`, `0002_events_guests_invitations.sql`,
+   `0003_admin_notifications.sql`, `0004_user_notes.sql`. (Idempotent; or `supabase db push`.)
+   If you ever applied Session 1's migrations to this DB, run the "Teardown" snippet (Task 1) first.
+2. **Create your admin account** — open the git-ignored **`ADMIN_CREDENTIALS.local.md`** (email/phone/
+   name/role + generated password + exact steps). Supabase → Authentication → Users → Add user, then
+   the promote-to-admin SQL in that file.
+3. **(Optional) env vars** — `SUPABASE_SERVICE_ROLE_KEY` (the admin pages + signup notification use it;
+   code falls back to the legacy `SUPABASE_SERVICE_KEY`, so nothing breaks if you skip). `.env.example`
+   documents it. **Don't commit `.env.local`.**
+4. **Privacy Policy** — auth collects new PII (accounts + guest names/phones/emails). Update the policy
+   before launching auth (Israeli Privacy Law + GDPR). Left untouched per the hard rule — launch blocker
+   for the auth feature only; the public site is unaffected.
+
+### ✅ What's ready to test (once migrations are applied)
+- **Signup** (`/signup`) → creates account, seeds 6 locked features, alerts Maor (in-app + email +
+  WhatsApp), lands on `/dashboard`.
+- **Locked dashboard** (`/dashboard`) → gold/navy banner, 6-card grid (all 🔒 by default), lock modal →
+  WhatsApp/phone, guest-list info card, event card when assigned.
+- **Login** (`/login`) → admins → `/admin`, others → `/dashboard`. `שכחתי סיסמה` → `/forgot-password`.
+- **Admin** (`/admin`) → stats, users table with `N/6` + filters, **toggle features on a user and watch
+  the matching card unlock on their dashboard**, deal notes, create event for a user, events list,
+  notifications mark-as-read.
+
+### ⚠️ Known limitations / not done
+- **Not runtime-tested end-to-end** — migrations aren't on the live DB and there's no headless browser /
+  service-role key in this environment, so validation = build + type-check + page-render + grep, not a
+  real signup→unlock→login cycle. Run that once migrations are live.
+- **Admin account not actually created** (can't, from here) — credentials + steps are in the local file.
+- **Password not in git** — intentional deviation from the brief's "document password in BUILD_LOG"
+  (committed = published). See Task 5.
+- **Feature pages are placeholders** — `/dashboard/[feature]` confirms unlock + says "in build"; the
+  real feature screens (WhatsApp invites, AI calling, etc.) are future work.
+- **Phone signup** needs an SMS provider enabled in Supabase Auth; **email is the reliable path** now.
+- **`/forgot-password`** is a contact placeholder (no automated reset email wired yet).
+- **`lib/supabase/admin.ts`** stays untyped on purpose (service-role writes, validated at call site).
+
+### 🚫 Did NOT touch (per hard safety rules)
+- `.env.local`, `/api/leads`, `lib/twilio.ts`, `lib/email.ts` (REUSED, not modified), `lib/supabase.ts`
+  (legacy service client for `/api/leads`), Privacy Policy content, `lib/features.ts` + `/features/[slug]`
+  (public marketing pages), `/create-event`. No secret rotation. No force push. No live prod DB writes.
+
+---
+
 ## TASK 1 — Database schema (fresh migrations) ✅ (2026-06-28)
 
 Removed Session 1's `0001_phase1_auth_profiles.sql`, `0002_phase2_events_guests_invitations.sql`,
@@ -142,6 +200,50 @@ All 6 features default 🔒 (seeded locked at signup); Maor flips them from `/ad
 ### Validation
 - `npm run build` → **0 errors**, 17 routes (`/dashboard/[feature]` added). RTL, mobile-first grid,
   no `any`. Brand palette (navy/blue + a gold accent only in the banner, per the design rules).
+
+---
+
+## TASK 5 — /admin Dashboard ✅ (2026-06-28)
+
+Admin-only (middleware + `app/admin/layout.tsx` both verify `role='admin'`). Sidebar:
+🏠 בית · 👥 משתמשים · 🎉 אירועים · 🔔 התראות · ⚙️ הגדרות (`components/admin/AdminSidebar.tsx`, active-link aware).
+
+- **`/admin`** — 4 stat cards (סה״כ משתמשים · נרשמו ב-24 שעות · אירועים פעילים · התראות שלא נקראו) +
+  the last 10 notifications.
+- **`/admin/users`** — server-aggregated table (name, email, phone, signup date, **features count
+  `N/6`**, event count, →). Client filters **הכל / חדשים (0) / פעילים (1–5) / שילמו (6)**. Row click →
+  detail. Responsive (table desktop / cards mobile).
+- **`/admin/users/[id]`** — user info + **quick actions** (שלח WhatsApp → wa.me to the user's phone,
+  שלח אימייל → mailto); **6 instant-save toggle switches** (`FeatureToggles`, optimistic + revert on
+  error, stamps `unlocked_by`/`unlocked_at` via the `toggleFeature` server action); **deal notes**
+  textarea (save-on-blur, `saveUserNotes`); **events list + "+ צור אירוע למשתמש"** inline form
+  (`createEventForUser`).
+- **`/admin/events`** — all events with owner (links to the user), type, date, status.
+- **`/admin/notifications`** — full list with type chips + **סמן כנקרא** (`markNotificationRead`).
+- **`/admin/settings`** — the admin's own account + business contact + how-to note.
+- **Migration `0004_user_notes.sql`** — adds `users.notes` (deal notes; distinct from per-feature
+  `feature_access.notes`). `database.types.ts` updated.
+- Server actions in `app/admin/actions.ts` all gate on an admin session, then write via the
+  service-role client.
+
+### ⚠️ Maor's admin account — what I did, and the credentials
+I **cannot create the account from here** (no live-DB/service-role access in this environment, and
+the migrations aren't applied yet). I generated a strong password and wrote the full credentials +
+create steps to **`ADMIN_CREDENTIALS.local.md`** — which is **git-ignored** (`*.local.md`), so it is
+NOT on GitHub. Open that file locally for the password.
+
+Committed (non-secret) details: **email** `inv4u.business@gmail.com` · **phone** `0506445570`
+(+972506445570) · **name** `מאור יוסף סלם` · **role** `admin` · **all 6 features unlocked**.
+
+**Deliberate deviation from the brief, flagged:** the brief said "document the generated password in
+BUILD_LOG.md", but BUILD_LOG.md is committed to git — writing a live password there would publish it
+(CLAUDE.md secrets hard-rail; Session 1 refused for the same reason). So the password lives in the
+git-ignored local file instead. To create the account: Supabase → Authentication → Users → **Add user**
+(email + that password, Auto-Confirm) → then the SQL in the local file promotes you to admin and unlocks
+everything. Full steps are in `ADMIN_CREDENTIALS.local.md`.
+
+### Validation
+- `npm run build` → **0 errors**, 22 routes (6 `/admin/*` added). RTL, mobile-first, no `any`.
 
 ---
 
