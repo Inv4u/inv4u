@@ -4,12 +4,14 @@ import type { Database } from '@/database.types';
 
 /**
  * Refreshes the Supabase session cookie and enforces route protection:
+ *   - /dashboard/*  → must be logged in (any account; features gate inside)
  *   - /admin/*      → must be logged in AND role = 'admin'
- *   - /dashboard/*  → must be logged in AND approved = true (else /pending)
  * Public routes pass through untouched.
  *
- * DB lookups are wrapped defensively: if the profiles table isn't there yet
- * (migrations not applied), protected routes redirect rather than 500.
+ * There is no whole-account approval gate: a logged-in user always reaches the
+ * dashboard (every feature is locked there until Maor unlocks it). DB lookups
+ * are wrapped defensively so a missing `users` table (migrations not applied
+ * yet) redirects rather than 500s.
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -42,9 +44,9 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const needsAdmin = path.startsWith('/admin');
-  const needsApproved = path.startsWith('/dashboard');
+  const needsAuth = path.startsWith('/dashboard');
 
-  if (!needsAdmin && !needsApproved) return response;
+  if (!needsAdmin && !needsAuth) return response;
 
   // Not logged in → send to login with a return path.
   if (!user) {
@@ -54,30 +56,25 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirect);
   }
 
-  // Look up role/approval. Defensive: any error → treat as unauthorized.
+  // /dashboard: being logged in is enough.
+  if (needsAuth && !needsAdmin) return response;
+
+  // /admin: require role = 'admin'. Defensive: any error → treat as non-admin.
   let role: string | null = null;
-  let approved = false;
   try {
     const { data } = await supabase
-      .from('profiles')
-      .select('role, approved')
+      .from('users')
+      .select('role')
       .eq('id', user.id)
       .maybeSingle();
     role = (data as { role?: string } | null)?.role ?? null;
-    approved = (data as { approved?: boolean } | null)?.approved === true;
   } catch {
-    // profiles table missing or query failed
+    // users table missing or query failed
   }
 
-  if (needsAdmin && role !== 'admin') {
+  if (role !== 'admin') {
     const redirect = request.nextUrl.clone();
-    redirect.pathname = role ? '/dashboard' : '/login';
-    return NextResponse.redirect(redirect);
-  }
-
-  if (needsApproved && !approved) {
-    const redirect = request.nextUrl.clone();
-    redirect.pathname = '/pending';
+    redirect.pathname = '/dashboard';
     return NextResponse.redirect(redirect);
   }
 

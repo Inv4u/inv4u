@@ -31,21 +31,28 @@ export default function SignupPage() {
       return;
     }
 
+    const isEmail = identifier.includes('@');
     setSubmitting(true);
-    const result = await signUp(identifier, password, fullName);
+    const result = await signUp({
+      email: isEmail ? identifier : undefined,
+      phone: isEmail ? undefined : identifier,
+      password,
+      full_name: fullName,
+    });
     if (!result.ok) {
       setError(translateAuthError(result.error));
       setSubmitting(false);
       return;
     }
 
-    // Alert Maor (best-effort — never blocks the signup).
-    const isEmail = identifier.includes('@');
+    // Alert Maor (best-effort — never blocks the signup). The 6 locked features
+    // are seeded by the DB signup trigger.
     try {
       await fetch('/api/auth/notify-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId: result.userId,
           fullName,
           email: isEmail ? identifier : '',
           phone: isEmail ? '' : identifier,
@@ -55,7 +62,7 @@ export default function SignupPage() {
       /* ignore */
     }
 
-    router.push('/pending');
+    router.push('/dashboard');
   };
 
   return (

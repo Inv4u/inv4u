@@ -24,26 +24,21 @@ function LoginForm() {
     }
 
     setSubmitting(true);
-    const result = await signIn(identifier, password);
+    const result = await signIn({ email_or_phone: identifier, password });
     if (!result.ok) {
       setError(translateAuthError(result.error));
       setSubmitting(false);
       return;
     }
 
-    // Route by approval status / role.
-    const profile = await getCurrentUser();
-    if (!profile) {
-      router.push('/pending');
-      return;
-    }
-    if (profile.role === 'admin') {
+    // Route by role: admins → /admin, everyone else → dashboard (features are
+    // gated inside the dashboard, so there is no approval wait).
+    const user = await getCurrentUser();
+    if (user?.role === 'admin') {
       router.push('/admin');
-    } else if (profile.approved) {
+    } else {
       const next = params.get('next');
       router.push(next && next.startsWith('/') ? next : '/dashboard');
-    } else {
-      router.push('/pending');
     }
   };
 

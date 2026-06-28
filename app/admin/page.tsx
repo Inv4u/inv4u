@@ -1,15 +1,14 @@
 import { redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
-import AdminUserList from '@/components/AdminUserList';
 import SignOutButton from '@/components/SignOutButton';
-import type { Profile } from '@/database.types';
+import type { User } from '@/database.types';
 
 // Admin-only (also enforced by middleware).
+// NOTE: interim shell — the full admin dashboard is built in Task 5.
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPage() {
-  // Authenticate + authorize via the caller's own session.
   const supabase = await getSupabaseServer();
   const {
     data: { user },
@@ -17,21 +16,20 @@ export default async function AdminPage() {
   if (!user) redirect('/login');
 
   const { data: me } = await supabase
-    .from('profiles')
+    .from('users')
     .select('role')
     .eq('id', user.id)
     .maybeSingle();
   if ((me as { role?: string } | null)?.role !== 'admin') redirect('/dashboard');
 
-  // List everyone with the service-role client (bypasses RLS, server-only).
-  let users: Profile[] = [];
+  let users: User[] = [];
   try {
     const admin = getSupabaseAdmin();
     const { data } = await admin
-      .from('profiles')
+      .from('users')
       .select('*')
       .order('created_at', { ascending: false });
-    users = (data as unknown as Profile[]) ?? [];
+    users = (data as User[] | null) ?? [];
   } catch {
     users = [];
   }
@@ -51,14 +49,8 @@ export default async function AdminPage() {
       </header>
 
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="text-3xl font-black text-brand-navy">ניהול משתמשים</h1>
-        <p className="mt-2 text-slate-600">
-          אישור חשבונות חדשים. רק לאחר אישור משתמש יוכל להשתמש במערכת.
-        </p>
-
-        <div className="mt-8">
-          <AdminUserList users={users} />
-        </div>
+        <h1 className="text-3xl font-black text-brand-navy">ניהול</h1>
+        <p className="mt-2 text-slate-600">{users.length} משתמשים רשומים.</p>
       </div>
     </main>
   );

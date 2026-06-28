@@ -65,6 +65,39 @@ drop function if exists public.is_approved(uuid) cascade;
 
 ---
 
+## TASK 2 — Auth helpers + types ✅ (2026-06-28)
+
+`@supabase/ssr` (0.12) + `@supabase/supabase-js` (2.106) already installed — nothing to add.
+
+- **`database.types.ts`** — fully rewritten for the Session 2 schema: `User`, `FeatureAccess`,
+  `EventRow`, `Guest`, `Invitation`, `AdminNotification` + all enums (`FeatureKey`, `EventType` incl.
+  `birthday`, `InviteChannel`, `InviteStatus`, `NotificationType`) and a `Database` generic for the
+  typed clients. Exports `FEATURE_KEYS` (the 6 keys in display order). The old `Profile`/`approved`
+  type is gone.
+- **`lib/auth.ts`** — rewritten to the requested API: `signUp({ email?, phone?, password, full_name })`,
+  `signIn({ email_or_phone, password })`, `signOut()`, `getCurrentUser()` → `User`,
+  `getUserFeatures(userId)` → `FeatureAccess[]`, `hasFeature(userId, featureKey)` → boolean. Israeli
+  phone normalised to E.164. Client module (browser anon client; RLS-safe). `isApproved` removed.
+- **`lib/supabase/{client,server,admin}.ts`** — unchanged; `admin.ts` stays intentionally untyped
+  (service-role writes, validated at call site).
+- **`lib/supabase/middleware.ts` / `proxy.ts`** — protection updated: `/dashboard/*` now needs only a
+  logged-in session (features gate *inside* the dashboard — no approval wait); `/admin/*` needs
+  `role='admin'`. Queries `users` (was `profiles`); defensive try/catch if the table is absent.
+- **`lib/notify.ts`** — now records an in-app `admin_notifications` row (service-role insert) **and**
+  emails + WhatsApps Maor on a new signup, REUSING `lib/email` + `lib/twilio` unchanged. WhatsApp
+  carries the exact copy: `משתמש חדש נרשם: [name] | [email/phone] | קבעו שיחה לסגירת חבילה`. The old
+  `notifyUserApproved` is gone.
+- **Removed (obsolete approval flow):** `app/pending/page.tsx`, `components/AdminUserList.tsx`,
+  `app/admin/actions.ts`. **Interim shells** left for `app/dashboard/page.tsx` (welcome) and
+  `app/admin/page.tsx` (user count) — fully built in Tasks 4 & 5. `app/login` / `app/signup` rewired
+  to the new auth API + routing (admin→/admin, else→/dashboard; signup→/dashboard).
+
+### Validation
+- `npm run build` → **0 errors**, 15 routes (`/pending` removed). No references to the old
+  `profiles`/`approved` symbols remain (grep-verified).
+
+---
+
 # BUILD_LOG — Sequential Overnight Build: pricing → DB → auth (2026-06-13)
 
 Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committed + pushed one at a time. Newest entries at the top.

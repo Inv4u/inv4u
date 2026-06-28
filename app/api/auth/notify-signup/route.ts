@@ -17,17 +17,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true }, { status: 200 }); // swallow silently
   }
 
-  let body: { fullName?: unknown; email?: unknown; phone?: unknown };
+  let body: {
+    userId?: unknown;
+    fullName?: unknown;
+    email?: unknown;
+    phone?: unknown;
+  };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
+  const userId = typeof body.userId === 'string' ? body.userId : null;
   const fullName = typeof body.fullName === 'string' ? body.fullName.trim() : '';
   const email = typeof body.email === 'string' ? body.email.trim() : '';
   const phone = typeof body.phone === 'string' ? body.phone.trim() : '';
 
-  await notifyAdminNewSignup({ fullName, email, phone });
+  await notifyAdminNewSignup({ userId, fullName, email, phone });
   return NextResponse.json({ ok: true }, { status: 200 });
 }
