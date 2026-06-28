@@ -1,3 +1,70 @@
+# BUILD_LOG — SESSION 2: Database + Auth + Locked Dashboard (2026-06-28)
+
+Operator: Claude (Opus 4.8). Autonomous. Business model: phone-sales, NOT freemium.
+Accounts are open to anyone (lead capture); every feature is **locked** until Maor
+unlocks it per-feature after a paid call. 5 connected tasks, each validated with
+`npm run build` (0 errors) → commit → push. Newest task entries appended below the
+header as they complete.
+
+> **Model shift from Session 1 (2026-06-13):** Session 1 built a `profiles` table with a
+> single whole-account `approved` gate. Session 2 replaces that with `users` + a
+> per-feature `feature_access` table (the locked-dashboard model). The old
+> `profiles`/`approved` migrations and `/pending` approval flow are **removed**. If you
+> already applied Session 1's migrations to a live DB, see "Teardown" in Task 1 below.
+
+---
+
+## TASK 1 — Database schema (fresh migrations) ✅ (2026-06-28)
+
+Removed Session 1's `0001_phase1_auth_profiles.sql`, `0002_phase2_events_guests_invitations.sql`,
+`0003_phase3_notifications.sql` (they encoded the obsolete `profiles`/`approved` model).
+Wrote 3 fresh, idempotent migrations matching the Session 2 schema:
+
+- **`0001_users_and_feature_access.sql`** — `user_role` + `feature_key` enums; **`users`**
+  table (1:1 with `auth.users`, role `event_owner`/`admin`, no approval column); **`feature_access`**
+  (the key table — one row per `(user_id, feature_key)`, `unlocked` default false, `unlocked_at`,
+  `unlocked_by`, `notes`, UNIQUE on `(user_id, feature_key)`); `is_admin()` helper; `touch_updated_at`;
+  **`handle_new_user`** signup trigger that creates the `users` row AND seeds all 6 features locked
+  (`unnest(enum_range(...))` — future-proof); `guard_user_update` (blocks self role-escalation);
+  RLS (users: SELECT/UPDATE self-or-admin; feature_access: users SELECT own read-only, admins all).
+- **`0002_events_guests_invitations.sql`** — `event_type` (incl. `birthday`), `event_status`,
+  `rsvp_status`, `invite_channel` (whatsapp/email/ai_call), `invite_status` (queued/sent/delivered/
+  failed/opened) enums; `events`, `guests` (+`dietary_notes`, `table_assignment`), `invitations`
+  (+`twilio_message_id`, `twilio_call_sid`) tables; RLS (owner SELECT own events, full CRUD on own
+  guests/invitations; admin all). **Public RSVP** via `get_guest_by_token()` + `respond_rsvp()`
+  SECURITY DEFINER RPCs granted to `anon`+`authenticated` — exposes only the one row matching the
+  token (satisfies the "public via invite_token only" rule without a broad public policy).
+- **`0003_admin_notifications.sql`** — `notification_type` enum (new_signup/rsvp_received/
+  lead_inquiry/system_alert); `admin_notifications` (title, body, read_at, related_user_id,
+  related_event_id); RLS admins-only. Inserts in practice via service-role server code.
+
+### ▶️ How Maor applies these (Supabase Dashboard)
+1. Open **app.supabase.com** → your inv4u project → **SQL Editor** → **New query**.
+2. Paste the full contents of **`supabase/migrations/0001_users_and_feature_access.sql`** → **Run**.
+3. Repeat for **`0002_events_guests_invitations.sql`**, then **`0003_admin_notifications.sql`** — **in order**.
+4. (Optional, CLI alternative) `supabase db push` from the repo root.
+5. They're idempotent — safe to re-run. After this, create your admin account (see Task 5 entry).
+
+### ⚠️ Teardown — ONLY if you applied Session 1's migrations to a live DB
+You almost certainly did **not** (Session 1's log says nothing was applied to prod). If you did,
+run this once in SQL Editor **before** the new migrations to drop the obsolete objects:
+```sql
+drop table if exists public.notifications cascade;
+drop table if exists public.invitations cascade;
+drop table if exists public.guests cascade;
+drop table if exists public.events cascade;
+drop table if exists public.profiles cascade;
+drop type  if exists public.notification_type cascade;
+drop function if exists public.is_approved(uuid) cascade;
+-- (event_type/event_status/rsvp_status/user_role are reused by the new schema — leave them.)
+```
+
+### Validation
+- `npm run build` → **0 errors**, 16 routes. (SQL files aren't type-checked; existing TS still
+  compiles against the old types — those are migrated in Task 2.)
+
+---
+
 # BUILD_LOG — Sequential Overnight Build: pricing → DB → auth (2026-06-13)
 
 Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committed + pushed one at a time. Newest entries at the top.
