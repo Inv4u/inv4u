@@ -57,10 +57,12 @@ export default function SignupPage() {
       return;
     }
 
-    // Alert Maor (best-effort — never blocks the signup). The 6 locked features
-    // are seeded automatically by the DB signup trigger.
+    // Alert Maor — fire-and-forget so the redirect isn't blocked by Gmail/Twilio
+    // latency. `keepalive` lets the request survive the navigation; the route
+    // itself returns instantly and sends the email/WhatsApp in the background.
+    // The 6 locked features are seeded automatically by the DB signup trigger.
     try {
-      await fetch('/api/auth/notify-signup', {
+      void fetch('/api/auth/notify-signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -69,6 +71,7 @@ export default function SignupPage() {
           email: isEmail ? id : '',
           phone: isEmail ? '' : id,
         }),
+        keepalive: true,
       });
     } catch {
       /* best-effort */

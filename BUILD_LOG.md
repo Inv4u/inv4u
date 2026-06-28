@@ -1,3 +1,39 @@
+# BUILD_LOG — SESSION 3: Performance + Notifications + Visual Refinement + Privacy (2026-06-28)
+
+Operator: Claude (Opus 4.8). Autonomous. Driven by Maor's testing feedback (slow signup, missing
+custom notifications, unwanted Supabase confirm email, "looks AI-generated"). 5 tasks, each
+validated (`npm run build`, 0 errors) → commit → push. Newest task entries appended below the header.
+
+---
+
+## TASK 1 — Make signup fast (target < 3s) ✅ (2026-06-28)
+
+**Root cause of the ~10s:** signup is client-driven (the page calls Supabase `signUp()`; the DB
+trigger inserts `users` + seeds `feature_access`). There is **no** `/api/auth/signup` route — the
+brief assumed one. The slow part was the page doing `await fetch('/api/auth/notify-signup')`, and that
+route `await`-ing Gmail SMTP **and** Twilio **sequentially** before responding. So the client sat
+through both network calls.
+
+**Fix:**
+- `app/api/auth/notify-signup/route.ts` — returns **200 immediately** and runs the notifications in
+  the background via **`after()` from `next/server`** (Vercel-safe: the function stays alive until the
+  `after` work settles, unlike a bare fire-and-forget that gets frozen post-response).
+- `lib/notify.ts` — the 3 channels (in-app row, email, WhatsApp) now run **concurrently via
+  `Promise.allSettled`** instead of 3 sequential awaits; one failing can't block the others.
+- `app/signup/page.tsx` — fires the alert **fire-and-forget with `keepalive: true`** (survives the
+  navigation) and redirects to `/dashboard` without awaiting it.
+
+**Expected result:** client-perceived signup time is now ~just the Supabase `signUp()` call (≈1–2s
+once email confirmation is disabled — Task 3), not 1–2s + Gmail + Twilio. No more 10s wait.
+
+**Note:** there are no `/api/admin/*` routes that send notifications (admin uses server actions that
+only do DB writes), so there was nothing else to convert.
+
+### Validation
+- `npm run build` → **0 errors**, 16 app routes compiled.
+
+---
+
 # BUILD_LOG — SESSION 2: Database + Auth + Locked Dashboard (2026-06-28)
 
 Operator: Claude (Opus 4.8). Autonomous. Business model: phone-sales, NOT freemium.

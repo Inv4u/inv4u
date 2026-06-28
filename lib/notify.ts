@@ -30,41 +30,38 @@ function signupMessage(info: SignupInfo): string {
 export async function notifyAdminNewSignup(info: SignupInfo): Promise<void> {
   const name = info.fullName || 'משתמש חדש';
   const message = signupMessage(info);
+  const lead = {
+    name,
+    phone: info.phone || '—',
+    email: info.email || '—',
+  };
 
-  // 1. In-app notification row (service-role insert; bypasses RLS).
-  try {
-    const admin = getSupabaseAdmin();
-    await admin.from('admin_notifications').insert({
-      type: 'new_signup',
-      title: `משתמש חדש נרשם: ${name}`,
-      body: message,
-      related_user_id: info.userId ?? null,
-    });
-  } catch (err) {
-    console.error('[notify] admin_notifications insert failed:', err);
-  }
+  // Run all three channels concurrently and independently — one failing must
+  // not block the others. Each helper logs its own success/failure (Task 2).
+  await Promise.allSettled([
+    // 1. In-app notification row (service-role insert; bypasses RLS).
+    (async () => {
+      try {
+        const admin = getSupabaseAdmin();
+        await admin.from('admin_notifications').insert({
+          type: 'new_signup',
+          title: `משתמש חדש נרשם: ${name}`,
+          body: message,
+          related_user_id: info.userId ?? null,
+        });
+        console.log('[notify] admin_notifications row inserted');
+      } catch (err) {
+        console.error('[notify] admin_notifications insert failed:', errMessage(err));
+      }
+    })(),
+    // 2. Email Maor (reuses the lead-notification Gmail transport).
+    emailBusiness(lead),
+    // 3. WhatsApp Maor (reuses the lead-notification Twilio sender; carries the
+    //    exact signup copy).
+    whatsappBusiness({ ...lead, message }),
+  ]);
+}
 
-  // 2. Email Maor (reuses the lead-notification Gmail transport).
-  try {
-    await emailBusiness({
-      name,
-      phone: info.phone || '—',
-      email: info.email || '—',
-    });
-  } catch (err) {
-    console.error('[notify] admin signup email failed:', err);
-  }
-
-  // 3. WhatsApp Maor (reuses the lead-notification Twilio sender; carries the
-  //    exact signup copy).
-  try {
-    await whatsappBusiness({
-      name,
-      phone: info.phone || '—',
-      email: info.email || '—',
-      message,
-    });
-  } catch (err) {
-    console.error('[notify] admin signup WhatsApp failed:', err);
-  }
+function errMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
 }
