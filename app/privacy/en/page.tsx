@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
 };
 
-const LAST_UPDATED = "May 31, 2026";
+const LAST_UPDATED = "June 28, 2026";
 
 export default function PrivacyPageEn() {
   return (
@@ -103,6 +103,33 @@ export default function PrivacyPageEn() {
               </li>
             </UL>
 
+            <H3>Account Information We Collect (at signup)</H3>
+            <P>
+              When you create an account, we collect and store the following to
+              operate your account:
+            </P>
+            <UL>
+              <li>
+                <strong>Full name</strong> provided at signup.
+              </li>
+              <li>
+                <strong>Email address</strong> and/or <strong>phone number</strong>{" "}
+                used to sign in and to contact you about your event.
+              </li>
+              <li>
+                <strong>Password</strong> — stored only in{" "}
+                <strong>hashed (encrypted) form</strong> by Supabase Auth. We never
+                see or store your password in plain text.
+              </li>
+              <li>
+                <strong>Event details and guest list</strong> — once a package is
+                arranged, when we or you enter the event details (type, date,
+                venue) and the guest list (names and phone numbers). Guest details
+                are processed on your behalf; you are responsible for obtaining your
+                guests&rsquo; consent to be contacted.
+              </li>
+            </UL>
+
             <FutureBox>
               <h3 className="mb-3 text-lg font-bold text-brand-blue">
                 Future Services — not yet collected
@@ -149,6 +176,11 @@ export default function PrivacyPageEn() {
                 To respond to and follow up on inquiries you submit via the form.
               </li>
               <li>
+                <strong>To create and manage your account</strong>, authenticate
+                your sign-in, and contact you about your event and the package that
+                fits it.
+              </li>
+              <li>
                 To provide, operate, and improve the Service, and to tailor
                 quotes to your needs.
               </li>
@@ -184,6 +216,7 @@ export default function PrivacyPageEn() {
             <UL>
               <li>
                 <strong>Supabase</strong> — data storage in a PostgreSQL database
+                and authentication (account management and password hashing)
                 (servers in the EU / US).
               </li>
               <li>

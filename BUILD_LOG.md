@@ -20,8 +20,27 @@ dashboard.
 settings) can't act until they click it — pointless for a phone-sales funnel where Maor closes by call.
 This also makes signup feel faster (no waiting on/around a confirmation step).
 
-> After turning this off, also do the **post-deploy test** in the "ACTION REQUIRED — Maor, test again"
-> section at the bottom of this Session 3 block.
+> After turning this off, also do the **post-deploy test** below.
+
+---
+
+## 🚨 ACTION REQUIRED — Maor, test again after deploy
+
+1. **Disable email confirmation** in Supabase (section above) — do this first.
+2. **(Recommended) verify Vercel env vars** — especially WhatsApp ones. The code now auto-adds the
+   `whatsapp:` prefix, but the values must still be correct:
+   - `NOTIFICATION_WHATSAPP_TO` = your number, e.g. `whatsapp:+972506445570` (or bare `+972506445570`).
+   - `TWILIO_WHATSAPP_FROM` = your Twilio WhatsApp sender. If you're on the **Twilio sandbox**, your
+     phone must have joined it (send the sandbox's `join <code>` once).
+   - `GMAIL_APP_PASSWORD` = a 16-char Google **App Password** (not your Gmail password).
+3. **Test notifications in one click:** log in as admin → **/admin/settings** → **"שליחת התראות בדיקה"**.
+   It shows pass/fail per channel. Fastest way to confirm email + WhatsApp work.
+4. **Test signup:** go to **inv4u.vercel.app/signup** and register with a **different email** than last
+   time. It should land on `/dashboard` in **under 3 seconds** and you should get **no** Supabase
+   confirm email.
+5. **Check Vercel Logs:** Vercel → your project → **Logs**, filter for `[email]` / `[twilio]` /
+   `[notify]`. You'll see `attempted with: …` then `success` or `failed: <reason>` — that tells us
+   exactly what (if anything) is still wrong.
 
 ---
 
@@ -139,6 +158,71 @@ icon-based, restrained UI. The deeper marketing sections (`ComparisonSection`, `
 much calmer now (white base, solid buttons, no rainbow text) but a full section-by-section editorial
 redesign of those is a sensible follow-up, not done tonight, to avoid a risky 10-section rewrite in one
 pass. Each task above was build-validated (0 errors) before its commit.
+
+---
+
+## TASK 5 — Update Privacy Policy for new data collection ✅ (2026-06-28)
+
+Updated **both** `/privacy` (Hebrew) and `/privacy/en` (English). The pages were already
+comprehensive; the gap was that **accounts are now live**, so account data needed to move from
+"future" to "collected today".
+
+Diff summary (both languages):
+- **Last updated** → 28 ביוני 2026 / June 28, 2026.
+- **New "Account Information We Collect (at signup)" subsection** under §2 — full name, email and/or
+  phone, **password stored only hashed by Supabase Auth (never plain text)**, and event details +
+  guest names/phones (collected once a package is arranged).
+- **§3 (How We Use)** — added a bullet: create & manage your account, authenticate sign-in, contact you
+  about your event/package.
+- **§4 (Third Parties)** — Supabase entry now notes it also provides **authentication (account
+  management + password hashing)**. Twilio (WhatsApp), Gmail (email), Vercel (hosting) already listed;
+  **ElevenLabs** already listed under future services.
+- **§8 (Your Rights)** — already covers **access, correction, deletion** under Israeli Protection of
+  Privacy Law 5741-1981 **and** GDPR; left intact.
+- **§5 (Payments)** — bank transfer / Bit / cash section left **intact** as required.
+
+### Validation
+- `npm run build` → **0 errors**, 17 app routes; `/privacy` + `/privacy/en` prerender static.
+
+---
+
+## ★ SESSION 3 FINAL SUMMARY (read this first)
+
+| # | Task | Result | Commit(s) |
+|---|------|--------|-----------|
+| 1 | Make signup fast (< 3s) | ✅ | `6d89254` |
+| 2 | Debug + fix notifications | ✅ | `3500a77` |
+| 3 | Document disabling Supabase email confirmation | ✅ | `34759eb` |
+| 4 | Visual refinement (less AI) | ✅ | `27164a8` `01c600f` `bd6225c` `a208167` |
+| 5 | Privacy Policy update (HE + EN) | ✅ | _(final commit)_ |
+
+**Commits this session: 8.** Every one built with **0 errors** before push.
+
+### ⏱ Performance — signup speed
+- **Before:** ~10s. The signup page `await`ed the notify route, which `await`ed Gmail SMTP **then**
+  Twilio **sequentially** before responding — the user sat through both.
+- **After:** the client redirects to `/dashboard` as soon as Supabase `signUp()` resolves (~1–2s, and
+  faster once email confirmation is OFF — see ACTION REQUIRED). The notify route returns **200 instantly**
+  and sends email + WhatsApp **concurrently in the background** via `after()`. Target **< 3s** met by
+  design. _(Not measured against the live deploy from here — verify via the test below.)_
+
+### 🔔 Notifications — debug findings
+- **Most likely break:** Twilio WhatsApp needs the `whatsapp:` channel prefix on `from`/`to`. If the env
+  vars held bare numbers, `messages.create` threw and the old code swallowed it silently. **Fixed** with
+  an `asWhatsApp()` normaliser (idempotent). 
+- **Visibility added:** every attempt now logs `attempted with: <recipient>` → `success` / `failed:
+  <message>` in `lib/email.ts` + `lib/twilio.ts` (Vercel → Logs).
+- **Independent test:** `POST /api/admin/test-notifications` (admin-only) + a **"שליחת התראות בדיקה"**
+  button on `/admin/settings` reports per-channel pass/fail. Use it after fixing env vars to confirm the
+  real cause (prefix? Gmail App Password? Twilio sandbox opt-in?).
+
+### 🔒 Privacy diff
+See Task 5 above — account data (name/email/phone/hashed password) + event/guest data now documented as
+collected today; third parties + rights confirmed; payments untouched; dates bumped. Both HE + EN.
+
+### 🚫 Did NOT touch (per hard rules)
+`.env.local`, the `/api/leads` endpoint (only its shared libs — logging + WhatsApp-prefix fix), no
+Supabase key rotation, no force push.
 
 ---
 
