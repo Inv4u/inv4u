@@ -6,6 +6,25 @@ validated (`npm run build`, 0 errors) → commit → push. Newest task entries a
 
 ---
 
+## 🚨 ACTION REQUIRED — Disable email confirmation (do this in Supabase)
+
+Supabase is sending users its own "confirm your email" message. We don't want that friction — our
+model is **phone sales, not self-service** — and a logged-in user should land straight on the locked
+dashboard.
+
+**Turn it off:**
+1. Open: **https://supabase.com/dashboard/project/gxcikgrehwhirwmenfyv/auth/providers**
+2. **Authentication → Providers → Email** → toggle **"Confirm email" OFF** → **Save**.
+
+**Why:** removes signup friction; with confirmation on, new users get an extra email and (depending on
+settings) can't act until they click it — pointless for a phone-sales funnel where Maor closes by call.
+This also makes signup feel faster (no waiting on/around a confirmation step).
+
+> After turning this off, also do the **post-deploy test** in the "ACTION REQUIRED — Maor, test again"
+> section at the bottom of this Session 3 block.
+
+---
+
 ## TASK 1 — Make signup fast (target < 3s) ✅ (2026-06-28)
 
 **Root cause of the ~10s:** signup is client-driven (the page calls Supabase `signUp()`; the DB
