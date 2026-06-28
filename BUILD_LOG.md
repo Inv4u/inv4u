@@ -120,6 +120,31 @@ role), so they work under RLS without exposing privileged writes to the browser.
 
 ---
 
+## TASK 4 — The Locked Dashboard ✅ (2026-06-28)
+
+`/dashboard` (server component, RTL), built from real `feature_access` data:
+
+- **Top banner** — navy→gold gradient: "מוכנים להתחיל? בואו נסגור את האירוע שלכם בשיחה קצרה" +
+  **WhatsApp** (wa.me/972506445570, prefilled) and **Call** (tel) buttons.
+- **Welcome** — "שלום [first_name], ברוכים הבאים ל-inv4u" + the locked-until-call explainer.
+- **Feature grid** — 6 cards (1-col mobile / 2-col / 3-col desktop) from a single source of truth
+  (`lib/featureCatalog.ts`). Each card: icon, name, 2-line description, 🔒/✅ badge. Unlocked →
+  **"כניסה"** → `/dashboard/[feature]`; locked → **"פנו אלינו לפתיחה"** (and the whole card) opens a
+  **modal**: "פיצ'ר זה נעול. נסגור איתכם בשיחה קצרה" + WhatsApp + Phone CTAs. (`components/dashboard/FeatureGrid.tsx`, client.)
+- **Info card** (always visible) — "איך להעלות רשימת מוזמנים": 3 steps (Excel/CSV columns → upload/drag/manual → review) + WhatsApp CTA.
+- **Event status** — when Maor has assigned an event, a card shows above the grid with type, title
+  (couple/honoree), Hebrew date, and venue; otherwise just welcome + grid. (`lib/eventLabels.ts` for labels/dates.)
+- **`/dashboard/[feature]`** — per-feature placeholder, **server-side gated**: unknown key or a feature
+  that isn't unlocked for this user → redirect to `/dashboard`.
+
+All 6 features default 🔒 (seeded locked at signup); Maor flips them from `/admin` (Task 5).
+
+### Validation
+- `npm run build` → **0 errors**, 17 routes (`/dashboard/[feature]` added). RTL, mobile-first grid,
+  no `any`. Brand palette (navy/blue + a gold accent only in the banner, per the design rules).
+
+---
+
 # BUILD_LOG — Sequential Overnight Build: pricing → DB → auth (2026-06-13)
 
 Operator: Claude (Opus 4.8). Autonomous. 4 connected tasks, validated + committed + pushed one at a time. Newest entries at the top.
