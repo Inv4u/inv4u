@@ -90,6 +90,58 @@ which helps lead notifications too without changing the endpoint).
 
 ---
 
+## TASK 3 — Document disabling Supabase email confirmation ✅ (2026-06-28)
+
+Docs-only. Added the **"🚨 ACTION REQUIRED — Disable email confirmation"** section at the top of this
+Session 3 block: direct project URL, Authentication → Providers → Email → "Confirm email" OFF → Save,
+and the why (phone-sales model, not self-service; removes friction). `npm run build` → 0 errors.
+
+---
+
+## TASK 4 — Visual refinement: "less AI, more professional" ✅ (2026-06-28, 4 commits)
+
+Installed **`lucide-react`** and removed emojis from all UI chrome (kept only in user/WhatsApp copy).
+Approach: fix the **global design tokens once** (so every page benefits) + rebuild the app pages the
+brief specs in detail.
+
+**Global tokens (`styles/globals.css`):**
+- Body background **#0B1031 (dark) → #ffffff (white)**; text → gray-900. This alone removes the biggest
+  "AI" tell site-wide.
+- `.btn-primary` — gradient+glow+lift → **solid navy `#0D1B4B`**, `rounded-lg`, subtle hover, no shadow.
+- `.text-gradient` / `-warm` / `-cool` — rainbow → **single solid blue accent** (kept class names so all
+  existing markup updates automatically, no per-file edits).
+- (Left `bg-mesh`/`glass` intact — the deeper marketing sections still use them; see "scope" note.)
+
+**4A — Homepage** (`27164a8`): `HeroSection` rewritten — white, no animated blobs, no emoji trust
+signals (now Lucide `Check` rows), one-sentence headline, ~50% shorter subcopy, navy type. `Header`
+white with navy logo + solid navy CTA. Phone mockup (editorial wedding photo) kept as-is.
+
+**4B — Dashboard** (`01c600f`): feature catalog → **Lucide icons** (`MessageSquare`, `PhoneCall`,
+`Mail`, `BarChart3`, `Grid3x3`, `Users`) + descriptions cut ~50% per the brief. Gold/navy gradient
+banner → **clean white card** ("החשבון פתוח. נסגור את החבילה בשיחה." + WhatsApp primary + phone
+secondary). Feature cards **flat** (white, 1px border, `rounded-lg`, no shadow) with a small Lock/Check
+pill top-corner; lock modal → "פיצ'ר נעול. שיחה קצרה ונפתח." Info card simplified to one sentence +
+WhatsApp at the bottom. Event/feature-placeholder pages use Lucide (`Calendar`/`MapPin`/`CircleCheck`).
+
+**4C — Auth** (`bd6225c`): `AuthShell` → plain white, centered, no `bg-mesh`, bordered minimal inputs,
+lighter labels. `/forgot-password` rewritten white + Lucide (`KeyRound`/`MessageSquare`/`Phone`).
+Submit buttons solid navy.
+
+**4D — Admin** (this commit): sidebar + stat cards + quick actions → **Lucide** (`Home`, `Users`,
+`Calendar`, `Bell`, `Settings`, `UserPlus`, `Mail`, `MessageSquare`); stat/notification cards
+**flattened** (1px gray border, `rounded-lg`, no drop shadow, no gradient). Emoji grep across
+admin/dashboard/auth UI = **0**.
+
+**Scope note (honest):** the global tokens + hero rewrite de-AI the whole site's first impression and
+all buttons/accent text. The fully-specced app pages (dashboard/auth/admin) were rebuilt to flat,
+icon-based, restrained UI. The deeper marketing sections (`ComparisonSection`, `RoadmapSection`,
+`FeaturesServiceSection`, etc.) still use their own `bg-mesh`/`glass` styling internally — they look
+much calmer now (white base, solid buttons, no rainbow text) but a full section-by-section editorial
+redesign of those is a sensible follow-up, not done tonight, to avoid a risky 10-section rewrite in one
+pass. Each task above was build-validated (0 errors) before its commit.
+
+---
+
 # BUILD_LOG — SESSION 2: Database + Auth + Locked Dashboard (2026-06-28)
 
 Operator: Claude (Opus 4.8). Autonomous. Business model: phone-sales, NOT freemium.

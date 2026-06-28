@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { MessageSquare, Mail } from 'lucide-react';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import FeatureToggles from '@/components/admin/FeatureToggles';
 import UserNotes from '@/components/admin/UserNotes';
@@ -97,17 +98,19 @@ export default async function AdminUserDetail({
                 href={`https://wa.me/${waDigits}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-emerald-500 px-5 py-2 text-center text-sm font-bold text-white transition hover:bg-emerald-600"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-navy px-5 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-[#0a1538]"
               >
-                💬 שלח WhatsApp
+                <MessageSquare className="h-4 w-4" strokeWidth={2} />
+                שלח WhatsApp
               </a>
             )}
             {user.email && (
               <a
                 href={`mailto:${user.email}`}
-                className="rounded-full border-2 border-slate-200 px-5 py-2 text-center text-sm font-bold text-brand-blue transition hover:bg-slate-50"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 px-5 py-2 text-center text-sm font-semibold text-brand-navy transition-colors hover:bg-gray-50"
               >
-                ✉️ שלח אימייל
+                <Mail className="h-4 w-4" strokeWidth={2} />
+                שלח אימייל
               </a>
             )}
           </div>

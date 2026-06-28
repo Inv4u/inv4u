@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Users, UserPlus, Calendar, Bell, type LucideIcon } from 'lucide-react';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import type { AdminNotification } from '@/database.types';
 
@@ -60,20 +61,20 @@ export default async function AdminHome() {
       </h1>
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Stat label="סה״כ משתמשים" value={stats.totalUsers} icon="👥" />
-        <Stat label="נרשמו ב-24 שעות" value={stats.newUsers} icon="✨" />
-        <Stat label="אירועים פעילים" value={stats.activeEvents} icon="🎉" />
+        <Stat label="סה״כ משתמשים" value={stats.totalUsers} icon={Users} />
+        <Stat label="נרשמו ב-24 שעות" value={stats.newUsers} icon={UserPlus} />
+        <Stat label="אירועים פעילים" value={stats.activeEvents} icon={Calendar} />
         <Stat
           label="התראות שלא נקראו"
           value={stats.pendingNotifs}
-          icon="🔔"
+          icon={Bell}
           href="/admin/notifications"
         />
       </div>
 
-      <div className="mt-8 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-black text-brand-navy">התראות אחרונות</h2>
+          <h2 className="text-lg font-semibold text-brand-navy">התראות אחרונות</h2>
           <Link
             href="/admin/notifications"
             className="text-sm font-bold text-brand-blue hover:underline"
@@ -114,21 +115,21 @@ export default async function AdminHome() {
 function Stat({
   label,
   value,
-  icon,
+  icon: Icon,
   href,
 }: {
   label: string;
   value: number;
-  icon: string;
+  icon: LucideIcon;
   href?: string;
 }) {
   const body = (
-    <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm transition hover:shadow-md">
+    <div className="rounded-lg border border-gray-200 bg-white p-5 transition-colors hover:border-gray-300">
       <div className="flex items-center justify-between">
-        <span className="text-2xl">{icon}</span>
-        <span className="text-3xl font-black text-brand-navy">{value}</span>
+        <Icon className="h-5 w-5 text-gray-400" strokeWidth={2} />
+        <span className="text-3xl font-extrabold text-brand-navy">{value}</span>
       </div>
-      <div className="mt-2 text-sm font-bold text-slate-500">{label}</div>
+      <div className="mt-2 text-sm font-medium text-gray-500">{label}</div>
     </div>
   );
   return href ? <Link href={href}>{body}</Link> : body;
