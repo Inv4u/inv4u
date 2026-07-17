@@ -22,9 +22,10 @@ const COUPLE_PHOTO =
   'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=640&q=70';
 
 // Shared demo details, kept consistent across every screen.
-const COUPLE = 'דנה & יוסי';
-const EVENT_DATE = 'שבת, 14.06.2026';
-const VENUE = 'גן האירועים "השמיים", פתח תקווה';
+const COUPLE = 'דנה ויוסי';
+const EVENT_DATE = 'יום חמישי · 14.8.2026';
+const VENUE = 'גני האירוע, ראשון לציון';
+const WARM_LINE = 'יהיה לנו לכבוד לחגוג איתכם';
 
 const STAGES = ['invitation', 'whatsapp', 'rsvp', 'ai', 'dashboard'] as const;
 type Stage = (typeof STAGES)[number];
@@ -171,10 +172,7 @@ export default function PhoneMockup() {
           <button
             key={s}
             role="tab"
-            onClick={() => {
-              console.log('Stage clicked:', i);
-              goTo(i);
-            }}
+            onClick={() => goTo(i)}
             aria-selected={i === index}
             aria-current={i === index ? 'true' : undefined}
             aria-label={STAGE_LABELS[s]}
@@ -259,6 +257,13 @@ function InvitationScreen() {
           <p className="text-[13px] font-bold text-slate-700">{EVENT_DATE}</p>
           <p className="mt-0.5 text-[11px] text-slate-500">{VENUE}</p>
 
+          <p
+            className="mt-2 text-[12px] italic text-slate-500"
+            style={{ fontFamily: SERIF }}
+          >
+            {WARM_LINE}
+          </p>
+
           {/* RSVP buttons */}
           <div className="mt-4 grid grid-cols-3 gap-1.5">
             <span
@@ -286,38 +291,61 @@ function InvitationScreen() {
   );
 }
 
-/* ---------------- Stage 2 — WhatsApp delivery ---------------- */
+/* ---------------- Stage 2 — WhatsApp, the invitation in use ---------------- */
 function WhatsappScreen() {
   return (
     <div className="flex h-full flex-col bg-[#ECE5DD]">
-      {/* whatsapp header */}
+      {/* whatsapp header — real chat, couple's avatar */}
       <div className="flex items-center gap-3 bg-[#075E54] px-4 pb-3 pt-10 text-white">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-lg">💍</span>
+        <span className="relative h-9 w-9 overflow-hidden rounded-full bg-white/20">
+          <Image src={COUPLE_PHOTO} alt="" fill sizes="36px" loading="lazy" className="object-cover" />
+        </span>
         <div className="leading-tight">
-          <p className="text-sm font-bold">{COUPLE}</p>
-          <p className="text-[10px] text-white/70">הזמנה דיגיטלית</p>
+          <p className="text-sm font-bold">{COUPLE} · אישורי הגעה</p>
+          <p className="text-[10px] text-white/70">רועי, נועה מקלידים…</p>
         </div>
         <span className="mr-auto text-xs text-white/70">עכשיו</span>
       </div>
 
       {/* chat */}
-      <div className="flex-1 space-y-3 px-3 py-4">
-        <div className="ms-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-[#DCF8C6] p-3 shadow-sm">
-          <p className="text-[12px] font-bold text-slate-800">הוזמנתם לחתונה של {COUPLE} 💍</p>
-          <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
-            {EVENT_DATE}
-            <br />
-            {VENUE}
-          </p>
-          <div className="mt-2 rounded-lg bg-white/70 px-3 py-2 text-center text-[11px] font-bold text-[#075E54]">
-            👆 לחצו לצפייה בהזמנה ולאישור הגעה
-          </div>
-          <p className="mt-1 text-left text-[9px] text-slate-400">11:24 ✓✓</p>
+      <div className="flex-1 space-y-2 overflow-hidden px-3 py-4">
+        <div className="mx-auto w-max rounded-full bg-white/70 px-3 py-1 text-[10px] font-medium text-slate-500">
+          היום
         </div>
 
-        <div className="ms-auto flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[10px] font-medium text-slate-500 shadow-sm">
-          <span className="h-2 w-2 rounded-full bg-[#25D366]" />
-          נשלח ל-312 מוזמנים בלחיצה אחת
+        {/* outgoing — the invitation itself, with a warm line and read receipt */}
+        <div className="ms-auto max-w-[86%] rounded-2xl rounded-tr-sm bg-[#DCF8C6] p-2.5 shadow-sm">
+          <p className="text-[12px] font-bold text-slate-800">הוזמנתם לחתונה של {COUPLE}</p>
+          <p className="mt-0.5 text-[11px] leading-relaxed text-slate-600">
+            {EVENT_DATE} · {VENUE}
+          </p>
+          <p className="mt-1 text-[11px] italic text-slate-500" style={{ fontFamily: SERIF }}>
+            {WARM_LINE}
+          </p>
+          <p className="mt-1 text-left text-[9px] text-slate-400">
+            11:24 <span className="font-bold text-[#53BDEB]">✓✓</span>
+          </p>
+        </div>
+
+        {/* incoming — confirmed */}
+        <div className="me-auto max-w-[82%] rounded-2xl rounded-tl-sm bg-white p-2.5 shadow-sm">
+          <p className="text-[10px] font-bold text-magenta">רועי כהן</p>
+          <p className="text-[12px] text-slate-700">מגיעים! 2 אנשים</p>
+          <p className="text-left text-[9px] text-slate-400">11:26</p>
+        </div>
+
+        {/* incoming — maybe (an imperfect, human reply) */}
+        <div className="me-auto max-w-[82%] rounded-2xl rounded-tl-sm bg-white p-2.5 shadow-sm">
+          <p className="text-[10px] font-bold text-brand-blue">משפחת לוי</p>
+          <p className="text-[12px] text-slate-700">אולי נצליח, נעדכן קרוב לתאריך 🙏</p>
+          <p className="text-left text-[9px] text-slate-400">11:31</p>
+        </div>
+
+        {/* live typing indicator */}
+        <div className="me-auto flex items-center gap-1 rounded-2xl rounded-tl-sm bg-white px-3 py-2.5 shadow-sm">
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-400" />
         </div>
       </div>
 
