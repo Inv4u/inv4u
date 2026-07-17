@@ -87,7 +87,7 @@ export default function DashboardPreview() {
                     <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-brand-navy">
                       {g.name.slice(0, 1)}
                     </span>
-                    <span className="flex-1 truncate text-sm font-semibold text-brand-navy">
+                    <span className="min-w-0 flex-1 truncate text-sm font-semibold text-brand-navy">
                       {g.name}
                     </span>
                     <span className="text-xs text-gray-400">{g.party} אורחים</span>

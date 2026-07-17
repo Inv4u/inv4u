@@ -1,3 +1,96 @@
+# BUILD_LOG — SESSION 5: Substance, product imagery, real invitations (2026-07-17)
+
+Operator: Claude (Opus 4.8). Autonomous. Driven by Maor's verdict after Sessions 3–4:
+"too simple and boring, looks banal." Diagnosis: we removed decoration but left nothing
+behind — minimal only works when real substance fills the space. The fix wasn't stock photos
+(the most banal thing on the web); it was **showing the product**. 5 tasks, each build-validated
+(`npm run build`, 0 errors) → commit → push. 6 commits total.
+
+## ★ SESSION 5 FINAL SUMMARY (read this first)
+
+| # | Task | Result | Commit |
+|---|------|--------|--------|
+| 1 | Kill stock photo → fully typographic invitation | ✅ | `a1bd7ca` |
+| 2 | Invitation gallery — 8 distinct typographic designs | ✅ | `cf3db73` |
+| 3 | Product previews (dashboard, seating, WhatsApp; call-log existed) | ✅ | `902d533` |
+| 4 | Rebalance rhythm, kill remaining chrome shadows | ✅ | `5923012` |
+| 5 | Mobile check (375px) + this log | ✅ | _(this commit)_ |
+
+Every commit built with **0 errors** before push.
+
+### 🎨 What was designed
+- **Typographic invitation** (`PhoneMockup` stage 1) — the stock couple photo is GONE. A generic
+  couple on an invitation about two specific people read as fake instantly. Now: cream #FBF7EF,
+  thin gold frame, stacked Hebrew names in Frank Ruhl Libre with a gold Latin ampersand, diamond
+  divider, real Hebrew date (14 באוגוסט 2026) + reception/chuppah times + venue, warm couple line.
+  WhatsApp avatar → gold monogram (ד״י). No people, no photos anywhere in the mockup.
+- **Fix:** Hebrew names were previously set in Cormorant Garamond, which has **no Hebrew glyphs**
+  (silent system-serif fallback). Added **Frank Ruhl Libre** (Hebrew serif) + **Heebo / Assistant /
+  Suez One** for gallery variety; Cormorant kept only for Latin accents (ampersand, "Save the Date").
+- **Invitation gallery** (`InvitationGallery`) — 8 CSS/HTML designs (no images), each a real,
+  distinct point of view, not one template recolored: Classic, Modern minimal, Ornate, Editorial,
+  Romantic, Bold, Bar Mitzvah, Brit. Varied type pairings, hierarchy, spacing, layout, palette.
+  Horizontal snap-scroll on mobile, 3/4-col grid on desktop. Gold/cream/navy breathe here.
+- **Product previews** — text-described features replaced with visuals: `DashboardPreview` (RSVP
+  dashboard: Hebrew guest list, statuses, live count + proportion bar), `SeatingPreview` (full-bleed
+  navy board of tables with taken/maybe/empty seats), `WhatsAppPreview` (standalone chat thread with
+  replies, read receipts, an "אולי", typing indicator). Call-log = existing `ProofOfContactSection`.
+
+### 🎚 Rhythm / "clean but empty" fix (Task 4)
+Homepage is now product-forward with deliberate variety instead of uniform flat cards:
+Hero (white split) → Gallery (warm, horizontal scroll) → RSVP flow (white timeline) →
+WhatsApp (gray split, mockup right) → Dashboard (white asymmetric split, mockup left) →
+Seating (**full-bleed navy board**) → Call log (gray split, mockup right) → Features (bento) →
+FAQ (list) → Contact (split). Split sections alternate mockup sides. Kept: no emojis, no gradients,
+**no drop shadows** on site chrome (phone/card/bubble shadows → subtle rings/borders). Invitations
+themselves stay centered/symmetric (correct for the form); the site sections are asymmetric.
+
+---
+
+## 🔎 MOCKUP vs REAL — explicit list (honesty rule)
+
+**None of the product software exists yet.** Every preview below is a designed mockup, not a
+screenshot of live data. Each carries a visible **"תצוגה מקדימה"** label except the hero device
+mockup and the gallery (both self-evidently design samples). No fabricated usage stats, customer
+names, logos, or claims of scale — all names/dates/venues/counts are illustrative sample content.
+
+| Element | Status |
+|---|---|
+| Hero phone mockup (invitation / WhatsApp / RSVP / AI call / dashboard stages) | **MOCKUP** — device demo, sample data |
+| Invitation gallery (8 designs) | **MOCKUP** — design samples, invented names/dates/venues |
+| `WhatsAppPreview` chat thread | **MOCKUP** — labelled תצוגה מקדימה |
+| `DashboardPreview` (counts 148/24/12/31, guest list) | **MOCKUP** — labelled, illustrative numbers |
+| `SeatingPreview` tables/seats | **MOCKUP** — labelled |
+| `ProofOfContactSection` call log | **MOCKUP** — labelled, sample transcript snippets |
+| `StatsStrip` / `TestimonialsSection` | Hidden — render only when Maor adds REAL data (lib/stats, lib/testimonials) |
+| AI voice player | Hidden — renders only when `public/audio/ai-demo.mp3` exists |
+| Contact form → `/api/leads` | **REAL** — actually submits + notifies Maor (untouched) |
+| WhatsApp / phone / email links | **REAL** — wa.me / tel: / mailto: to Maor |
+| Navigation, /how-it-works, /privacy, auth/dashboard/admin | **REAL** app (gated) |
+
+---
+
+## 📱 Mobile (375px) — Task 5
+Audited at the code level for 375px (iPhone SE) / 390px:
+- Gallery scrolls horizontally (snap-x), contained in `overflow-x-auto` → no page overflow;
+  `body` keeps `overflow-x-hidden` as a backstop. Cards `w-52` peek to signal scrollability.
+- Every preview stacks to a single column below md/lg; previews stay legible (conservative type
+  sizes), not shrunk to illegibility.
+- Robustness fix: truncating Hebrew name spans got `min-w-0` so a long name truncates instead of
+  pushing siblings and causing horizontal overflow (Dashboard + call-log rows).
+- **Page weight:** everything new is CSS/SVG/HTML components — the remote Unsplash photo was
+  **removed** this session. Net-new payload is only the Hebrew webfonts (subsetted, `display=swap`).
+  framer-motion stays scoped to /how-it-works, not the homepage.
+- **Not verified in a device emulator** (no headless browser in this environment) — please spot-check
+  the gallery scroll + previews on your phone and flag anything.
+
+### 🚫 Did NOT touch / did NOT do (per hard rules)
+No stock photos of people (the specific thing that failed); no fabricated testimonials/stats/names/
+logos; no mockup presented as a live screenshot; `.env.local`, `/api/leads`, `lib/twilio.ts`,
+`lib/email.ts` untouched; no pricing; no competitor named; brand stays INV4U; no force push.
+
+---
+
 # BUILD_LOG — SESSION 4: Mobile-first, concise, human, credible (2026-07-17)
 
 Operator: Claude (Opus 4.8). Autonomous. Driven by Maor's live-site review + competitor

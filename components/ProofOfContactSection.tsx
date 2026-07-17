@@ -80,7 +80,7 @@ export default function ProofOfContactSection() {
                     >
                       <Icon className="h-4 w-4" strokeWidth={2.2} />
                     </span>
-                    <span className="flex-1 truncate text-sm font-bold text-brand-navy">
+                    <span className="min-w-0 flex-1 truncate text-sm font-bold text-brand-navy">
                       {row.name}
                     </span>
                     <span className={`text-xs font-semibold ${meta.text}`}>{meta.label}</span>
