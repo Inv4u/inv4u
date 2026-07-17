@@ -37,7 +37,7 @@ export default function ProofOfContactSection() {
     <section className="bg-[#F4F5F7] px-5 py-16 md:py-24" dir="rtl">
       <div className="mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-2 lg:gap-16">
         {/* copy */}
-        <div>
+        <div className="lg:order-2">
           <h2 className="text-3xl font-extrabold leading-tight text-brand-navy md:text-4xl">
             רואים כל שיחה — מי, מתי, ומה נאמר
           </h2>
@@ -54,7 +54,7 @@ export default function ProofOfContactSection() {
         </div>
 
         {/* product-preview mockup */}
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="rounded-2xl border border-gray-200 bg-white lg:order-1">
           {/* window chrome */}
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <div className="flex items-center gap-1.5" aria-hidden>

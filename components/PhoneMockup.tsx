@@ -127,7 +127,7 @@ export default function PhoneMockup() {
         onKeyDown={onKeyDown}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
-        className="relative rounded-[2.6rem] bg-slate-900 p-2.5 shadow-2xl ring-1 ring-white/10 outline-none focus-visible:ring-2 focus-visible:ring-brand-teal"
+        className="relative rounded-[2.6rem] bg-slate-900 p-2.5 ring-1 ring-black/10 outline-none focus-visible:ring-2 focus-visible:ring-brand-teal"
       >
         {/* notch */}
         <div className="absolute top-2.5 left-1/2 -translate-x-1/2 h-6 w-32 bg-slate-900 rounded-b-2xl z-20" />
@@ -182,7 +182,7 @@ export default function PhoneMockup() {
       </div>
 
       {/* floating confirmation bubble — decorative, must not block clicks */}
-      <div className="pointer-events-none absolute bottom-16 -left-4 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-xl animate-floaty">
+      <div className="pointer-events-none absolute bottom-16 -left-4 flex items-center gap-2 rounded-2xl border border-black/5 bg-white px-3 py-2 animate-floaty">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366] text-white">
           <Check className="h-4 w-4" strokeWidth={3} />
         </span>
