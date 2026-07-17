@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import { Bot, Check, MapPin, CalendarPlus } from 'lucide-react';
 
 /* ------------------------------------------------------------------ *
@@ -15,12 +14,10 @@ import { Bot, Check, MapPin, CalendarPlus } from 'lucide-react';
 // Gold accent — intentionally scoped to the invitation mockup only.
 const GOLD = '#C9A86C';
 const GOLD_SOFT = '#E7D7B8';
+// Latin serif for accents (ampersand, numerals); Hebrew serif for the names —
+// Cormorant has no Hebrew glyphs, so Hebrew must use Frank Ruhl Libre.
 const SERIF = "'Cormorant Garamond', serif";
-
-// Permanent Unsplash image (verified) of a happy couple.
-// Source: https://images.unsplash.com/photo-1519741497674-611481863552 (Unsplash)
-const COUPLE_PHOTO =
-  'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=640&q=70';
+const HEB_SERIF = "'Frank Ruhl Libre', serif";
 
 // Shared demo details, kept consistent across every screen.
 const COUPLE = 'דנה ויוסי';
@@ -198,94 +195,89 @@ export default function PhoneMockup() {
   );
 }
 
-/* ---------------- Stage 1 — premium wedding invitation ---------------- */
+/* ---------------- Stage 1 — typographic wedding invitation (no photo) ---------------- */
 function InvitationScreen() {
   return (
-    <div className="relative h-full bg-[#FBF8F2] text-center">
-      {/* hero photo of the couple */}
-      <div className="relative h-[42%] w-full overflow-hidden">
-        <Image
-          src={COUPLE_PHOTO}
-          alt="דנה ויוסי — בני הזוג מתחבקים ביום חתונתם"
-          fill
-          sizes="300px"
-          loading="lazy"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#FBF8F2] via-transparent to-black/10" />
-        <span className="sr-only">צילום: Unsplash</span>
+    <div className="flex h-full flex-col bg-[#FBF7EF] px-6 py-9 text-center">
+      {/* thin gold frame */}
+      <div
+        className="flex flex-1 flex-col items-center justify-between rounded-sm border py-7"
+        style={{ borderColor: GOLD_SOFT }}
+      >
+        <p
+          className="text-[10px] font-semibold tracking-[0.5em] text-slate-500"
+          style={{ paddingRight: '0.5em' }}
+        >
+          הזמנה לחתונה
+        </p>
+
+        {/* names, stacked, with a gold Latin ampersand between */}
+        <div className="flex flex-col items-center">
+          <span
+            className="leading-[1.05] text-slate-800"
+            style={{ fontFamily: HEB_SERIF, fontSize: '2.5rem', fontWeight: 500 }}
+          >
+            דנה
+          </span>
+          <span
+            className="my-1 leading-none"
+            style={{ fontFamily: SERIF, fontSize: '1.9rem', color: GOLD, fontWeight: 500 }}
+          >
+            &amp;
+          </span>
+          <span
+            className="leading-[1.05] text-slate-800"
+            style={{ fontFamily: HEB_SERIF, fontSize: '2.5rem', fontWeight: 500 }}
+          >
+            יוסי
+          </span>
+        </div>
+
+        {/* divider with a small diamond */}
+        <div className="flex items-center justify-center gap-2">
+          <span className="h-px w-10" style={{ background: GOLD_SOFT }} />
+          <span className="text-[8px]" style={{ color: GOLD }}>
+            ◆
+          </span>
+          <span className="h-px w-10" style={{ background: GOLD_SOFT }} />
+        </div>
+
+        {/* date + venue */}
+        <div className="space-y-1" style={{ fontFamily: HEB_SERIF }}>
+          <p className="text-[15px] font-medium text-slate-700">יום חמישי, 14 באוגוסט 2026</p>
+          <p className="text-[12px] text-slate-500">קבלת פנים 19:00 · חופה 20:00</p>
+          <p className="text-[12px] text-slate-500">גני האירוע · ראשון לציון</p>
+        </div>
+
+        {/* warm line */}
+        <p
+          className="max-w-[15rem] text-[13px] leading-relaxed text-slate-500"
+          style={{ fontFamily: HEB_SERIF }}
+        >
+          נשמח לחגוג איתכם את היום המאושר בחיינו
+        </p>
       </div>
 
-      {/* gold-framed details */}
-      <div className="relative -mt-6 px-5 pb-5">
-        <div
-          className="rounded-2xl border bg-[#FBF8F2]/95 px-4 pb-5 pt-4 shadow-sm backdrop-blur"
+      {/* RSVP row (part of the live invitation) */}
+      <div className="mt-4 grid grid-cols-3 gap-1.5">
+        <span
+          className="rounded-md py-2 text-[11px] font-bold text-white"
+          style={{ background: GOLD }}
+        >
+          אישור הגעה
+        </span>
+        <span
+          className="rounded-md border py-2 text-[11px] font-bold text-slate-600"
           style={{ borderColor: GOLD_SOFT }}
         >
-          <p
-            className="text-[10px] font-semibold tracking-[0.35em]"
-            style={{ color: GOLD }}
-          >
-            הזמנה לחתונה
-          </p>
-
-          <div className="my-2 flex items-center justify-center gap-2">
-            <span className="h-px w-7" style={{ background: GOLD }} />
-            <span style={{ color: GOLD }}>♦</span>
-            <span className="h-px w-7" style={{ background: GOLD }} />
-          </div>
-
-          <h3
-            className="leading-none text-slate-800"
-            style={{ fontFamily: SERIF, fontSize: '2.45rem', fontWeight: 600 }}
-          >
-            {COUPLE}
-          </h3>
-
-          <p
-            className="mt-1 text-sm italic text-slate-500"
-            style={{ fontFamily: SERIF }}
-          >
-            מתחתנים!
-          </p>
-
-          <div
-            className="mx-auto my-3 h-px w-20"
-            style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }}
-          />
-
-          <p className="text-[13px] font-bold text-slate-700">{EVENT_DATE}</p>
-          <p className="mt-0.5 text-[11px] text-slate-500">{VENUE}</p>
-
-          <p
-            className="mt-2 text-[12px] italic text-slate-500"
-            style={{ fontFamily: SERIF }}
-          >
-            {WARM_LINE}
-          </p>
-
-          {/* RSVP buttons */}
-          <div className="mt-4 grid grid-cols-3 gap-1.5">
-            <span
-              className="rounded-lg py-2 text-[11px] font-bold text-white shadow-sm"
-              style={{ background: GOLD }}
-            >
-              אישור הגעה
-            </span>
-            <span
-              className="rounded-lg border py-2 text-[11px] font-bold text-slate-600"
-              style={{ borderColor: GOLD_SOFT }}
-            >
-              לא אגיע
-            </span>
-            <span
-              className="rounded-lg border py-2 text-[11px] font-bold text-slate-600"
-              style={{ borderColor: GOLD_SOFT }}
-            >
-              טרם החלטתי
-            </span>
-          </div>
-        </div>
+          לא אגיע
+        </span>
+        <span
+          className="rounded-md border py-2 text-[11px] font-bold text-slate-600"
+          style={{ borderColor: GOLD_SOFT }}
+        >
+          אולי
+        </span>
       </div>
     </div>
   );
@@ -297,8 +289,11 @@ function WhatsappScreen() {
     <div className="flex h-full flex-col bg-[#ECE5DD]">
       {/* whatsapp header — real chat, couple's avatar */}
       <div className="flex items-center gap-3 bg-[#075E54] px-4 pb-3 pt-10 text-white">
-        <span className="relative h-9 w-9 overflow-hidden rounded-full bg-white/20">
-          <Image src={COUPLE_PHOTO} alt="" fill sizes="36px" loading="lazy" className="object-cover" />
+        <span
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-[13px] font-bold ring-1 ring-white/25"
+          style={{ color: GOLD, fontFamily: HEB_SERIF }}
+        >
+          ד״י
         </span>
         <div className="leading-tight">
           <p className="text-sm font-bold">{COUPLE} · אישורי הגעה</p>

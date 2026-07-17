@@ -22,8 +22,12 @@ export default function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
-        {/* Elegant serif — used only for the premium invitation mockup names */}
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet" />
+        {/* Hebrew display/serif/sans families for the typographic invitations + gallery,
+            plus Cormorant Garamond for Latin accents (numerals, ampersands). */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Heebo:wght@300;400;700;800&family=Assistant:wght@300;400;600;700&family=Suez+One&family=Cormorant+Garamond:wght@500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body style={{ fontFamily: 'Rubik, sans-serif' }}>
         {children}
