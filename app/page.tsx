@@ -5,12 +5,6 @@ import ProofOfContactSection from '@/components/ProofOfContactSection';
 import StatsStrip from '@/components/StatsStrip';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import FeaturesServiceSection from '@/components/FeaturesServiceSection';
-import MidPageCTA from '@/components/MidPageCTA';
-import RoadmapSection from '@/components/RoadmapSection';
-import SeatingLayoutSection from '@/components/SeatingLayoutSection';
-import ComparisonSection from '@/components/ComparisonSection';
-import ConsultationSection from '@/components/ConsultationSection';
-import JoinBanner from '@/components/JoinBanner';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
@@ -21,20 +15,13 @@ export default function Home() {
     <main className="w-full">
       <Header />
       <HeroSection />
+      {/* the real RSVP flow — the differentiator */}
       <RsvpFlowSection />
+      {/* verifiable contact — the moat */}
       <ProofOfContactSection />
       {/* social proof — both hidden until real data is added (lib/stats, lib/testimonials) */}
       <StatsStrip />
       <FeaturesServiceSection />
-      {/* mid-page CTA #1 */}
-      <MidPageCTA />
-      <RoadmapSection />
-      <SeatingLayoutSection />
-      <ComparisonSection />
-      {/* personal consultation — replaces the old savings calculator */}
-      <ConsultationSection />
-      {/* mid-page CTA #2 — the "be among the first" launch banner */}
-      <JoinBanner />
       <TestimonialsSection />
       <FAQSection />
       <ContactSection />
