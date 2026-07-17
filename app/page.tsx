@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
-import HowItWorksCTA from '@/components/HowItWorksCTA';
+import RsvpFlowSection from '@/components/RsvpFlowSection';
 import FeaturesServiceSection from '@/components/FeaturesServiceSection';
 import MidPageCTA from '@/components/MidPageCTA';
 import RoadmapSection from '@/components/RoadmapSection';
@@ -18,7 +18,7 @@ export default function Home() {
     <main className="w-full">
       <Header />
       <HeroSection />
-      <HowItWorksCTA />
+      <RsvpFlowSection />
       <FeaturesServiceSection />
       {/* mid-page CTA #1 */}
       <MidPageCTA />
