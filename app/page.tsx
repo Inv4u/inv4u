@@ -2,6 +2,9 @@ import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import InvitationGallery from '@/components/InvitationGallery';
 import RsvpFlowSection from '@/components/RsvpFlowSection';
+import WhatsAppPreview from '@/components/WhatsAppPreview';
+import DashboardPreview from '@/components/DashboardPreview';
+import SeatingPreview from '@/components/SeatingPreview';
 import ProofOfContactSection from '@/components/ProofOfContactSection';
 import StatsStrip from '@/components/StatsStrip';
 import TestimonialsSection from '@/components/TestimonialsSection';
@@ -20,7 +23,11 @@ export default function Home() {
       <InvitationGallery />
       {/* the real RSVP flow — the differentiator */}
       <RsvpFlowSection />
-      {/* verifiable contact — the moat */}
+      {/* product previews — clearly labelled mockups, not live data */}
+      <WhatsAppPreview />
+      <DashboardPreview />
+      <SeatingPreview />
+      {/* verifiable contact — the moat (call log) */}
       <ProofOfContactSection />
       {/* social proof — both hidden until real data is added (lib/stats, lib/testimonials) */}
       <StatsStrip />
