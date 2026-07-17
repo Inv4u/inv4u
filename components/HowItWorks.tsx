@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
+import { Check } from 'lucide-react';
 import {
   motion,
   useScroll,
@@ -207,7 +208,6 @@ interface Step {
   num: string;
   headline: string;
   description: string;
-  subtitle: string;
   Art: React.ComponentType<IllustrationProps>;
   // Richer copy shown only on the dedicated /how-it-works page.
   longDescription: string;
@@ -221,7 +221,6 @@ const STEPS: Step[] = [
     headline: 'יצירת האירוע',
     description:
       'בונים את האירוע ב-INV4U תוך דקות — בוחרים עיצוב, מוסיפים פרטים, ומעלים את רשימת המוזמנים.',
-    subtitle: 'Create your event in minutes',
     Art: CreateEventArt,
     longDescription:
       'נכנסים למערכת, בוחרים את סוג האירוע ואת העיצוב שמדבר אליכם, וממלאים את הפרטים — תאריך, מקום, שעה וטקסט אישי. מעלים את רשימת המוזמנים מקובץ Excel/CSV או מדביקים ישירות מאנשי הקשר. תוך דקות ספורות ההזמנה הדיגיטלית מוכנה לשליחה, ואנחנו כאן ללוות אתכם בכל שלב.',
@@ -237,7 +236,6 @@ const STEPS: Step[] = [
     headline: 'שליחת הזמנות',
     description:
       'המערכת שולחת הזמנה דיגיטלית בוואטסאפ לכל המוזמנים בלחיצה אחת — בלי טלפונים ובלי אקסלים.',
-    subtitle: 'WhatsApp invitations sent to every guest',
     Art: SendInvitesArt,
     longDescription:
       'בלחיצת כפתור המערכת שולחת לכל מוזמן הזמנה דיגיטלית אישית בוואטסאפ — עם השם שלו, הפרטים וקישור ייעודי לאישור הגעה. בלי להעתיק הודעות אחת-אחת, בלי אקסלים ובלי שיחות טלפון. כל מוזמן מקבל בדיוק את ההודעה הנכונה, בזמן הנכון.',
@@ -253,7 +251,6 @@ const STEPS: Step[] = [
     headline: 'אישורי הגעה',
     description:
       'האורחים מאשרים הגעה ישירות בוואטסאפ, ולוח הבקרה שלכם מתעדכן בזמן אמת — כל הנתונים במקום אחד.',
-    subtitle: 'Guests reply, your dashboard updates live',
     Art: RsvpArt,
     longDescription:
       'האורחים מאשרים הגעה ישירות בתוך הוואטסאפ — מגיעים, לא מגיעים או טרם החליטו, וגם כמה אורחים. כל תשובה נכנסת מיד ללוח הבקרה ומתעדכנת בזמן אמת. אתם רואים בכל רגע כמה אישרו, כמה חסרים ומי עדיין לא ענה — בלי לרדוף אחרי אף אחד.',
@@ -269,7 +266,6 @@ const STEPS: Step[] = [
     headline: 'AI עוקב',
     description:
       'מי שלא ענה? סוכן AI מתקשר בקול אנושי בעברית, מקבל תשובה מסודרת ומעדכן את הרשימה אוטומטית.',
-    subtitle: 'AI voice calls follow up in Hebrew',
     Art: AiCallArt,
     longDescription:
       'את מי שלא ענה גם אחרי התזכורות, סוכן AI מתקשר אליו בשיחה קולית בעברית טבעית. הוא מציג את עצמו, שואל אם יגיעו, מבין תשובות חופשיות ומעדכן את הרשימה לבד. כל שיחה מתומללת אוטומטית, כך שיש לכם תיעוד מלא — בלי להרים טלפון אחד בעצמכם.',
@@ -285,7 +281,6 @@ const STEPS: Step[] = [
     headline: 'האירוע המושלם',
     description:
       'אתם מגיעים לאירוע עם רשימת אורחים מלאה, מדויקת ומעודכנת — בלי הפתעות ובלי כאב ראש.',
-    subtitle: 'Arrive with a complete, accurate guest list',
     Art: PerfectEventArt,
     longDescription:
       'ביום האירוע אתם מגיעים עם רשימת אורחים סופית, מדויקת ומעודכנת — יודעים בדיוק כמה מנות להזמין, איך לסדר את ההושבה ומי הגיע. בלי הפתעות של הרגע האחרון, בלי טבלאות ידניות ובלי כאב ראש. אתם פשוט נהנים מהאירוע.',
@@ -345,10 +340,7 @@ function StoryStep({
   const { Art } = step;
 
   return (
-    <div
-      ref={ref}
-      className="flex min-h-[88vh] items-center py-16 md:min-h-screen"
-    >
+    <div ref={ref} className="flex items-center py-12 md:py-16">
       <div
         className={`mx-auto grid w-full max-w-6xl items-center gap-10 px-6 md:grid-cols-2 md:gap-16 ${
           reverse ? 'md:[direction:ltr]' : ''
@@ -412,22 +404,14 @@ function StoryStep({
                   key={detail}
                   className="flex items-start gap-3 text-base text-slate-700"
                 >
-                  <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-teal/15 text-xs font-bold text-brand-teal">
-                    ✓
+                  <span className="mt-1 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-teal/15 text-brand-teal">
+                    <Check className="h-3 w-3" strokeWidth={3} />
                   </span>
                   <span>{detail}</span>
                 </li>
               ))}
             </motion.ul>
           )}
-
-          <motion.p
-            variants={reduce ? undefined : itemVariants}
-            className="mt-5 text-sm font-medium uppercase tracking-wide text-brand-blue/70"
-            style={{ direction: 'ltr' }}
-          >
-            {step.subtitle}
-          </motion.p>
         </motion.div>
       </div>
     </div>

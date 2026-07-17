@@ -4,11 +4,12 @@ import HowItWorks from '@/components/HowItWorks';
 import ProcessFAQ from '@/components/ProcessFAQ';
 import Footer from '@/components/Footer';
 import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import { whatsappHref } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'איך זה עובד | INV4U — מההזמנה ועד האירוע המושלם',
   description:
-    'הסבר מלא על התהליך ב-INV4U: יצירת אירוע, שליחת הזמנות בוואטסאפ, אישורי הגעה אוטומטיים, שיחות AI בעברית וניהול אורחים מלוח בקרה אחד.',
+    'התהליך ב-INV4U: הזמנות בוואטסאפ, אישורי הגעה אוטומטיים, שיחות AI בעברית וניהול אורחים מלוח בקרה אחד.',
 };
 
 export default function HowItWorksPage() {
@@ -16,34 +17,23 @@ export default function HowItWorksPage() {
     <main className="w-full">
       <Header />
 
-      {/* Page hero */}
-      <section className="relative overflow-hidden bg-mesh px-4 pb-20 pt-20 text-center" dir="rtl">
-        <div className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-grape/40 blur-3xl animate-blob" />
-        <div className="pointer-events-none absolute bottom-0 -left-24 h-80 w-80 rounded-full bg-brand-teal/30 blur-3xl animate-blob animation-delay-300" />
-
-        <div className="relative mx-auto max-w-3xl">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/20">
-            <span className="h-2 w-2 rounded-full bg-brand-teal animate-pulse" />
-            המדריך המלא
-          </span>
-          <h1 className="mt-6 text-4xl font-black leading-tight text-white md:text-6xl">
-            איך <span className="text-gradient-warm">INV4U</span> עובד
+      {/* Page hero — clean white, tight */}
+      <section className="bg-white px-5 pb-10 pt-14 text-center md:pb-14 md:pt-20" dir="rtl">
+        <div className="mx-auto max-w-2xl">
+          <h1 className="text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
+            איך INV4U עובד
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg font-medium leading-relaxed text-slate-200 md:text-xl">
-            חמישה שלבים פשוטים שלוקחים אתכם מרשימת מוזמנים מבולגנת לאירוע מאורגן
-            לחלוטין — בלי טלפונים, בלי אקסלים ובלי כאב ראש. הנה כל התהליך, צעד אחר צעד.
+          <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-gray-500">
+            חמישה שלבים. אנחנו מנהלים את כולם — מההזמנה ועד רשימת אורחים סופית ומדויקת.
           </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a href="/#contact" className="btn-primary">
-              צרו את ההזמנה שלכם
-            </a>
-            <a
-              href="#how-it-works"
-              className="font-bold text-slate-300 underline-offset-4 transition hover:text-white hover:underline"
-            >
-              גללו לתהליך המלא ↓
-            </a>
-          </div>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary mt-7"
+          >
+            דברו איתנו בוואטסאפ
+          </a>
         </div>
       </section>
 
@@ -54,16 +44,21 @@ export default function HowItWorksPage() {
       <ProcessFAQ />
 
       {/* Closing CTA */}
-      <section className="bg-white px-4 pb-24" dir="rtl">
-        <div className="mx-auto max-w-5xl overflow-hidden rounded-3xl bg-brand-navy px-8 py-14 text-center shadow-2xl md:px-12">
-          <h2 className="text-3xl font-black leading-tight text-white md:text-4xl">
-            מוכנים לראות את זה עובד על האירוע שלכם?
+      <section className="bg-white px-5 pb-16 md:pb-24" dir="rtl">
+        <div className="mx-auto max-w-4xl rounded-2xl bg-brand-navy px-6 py-12 text-center md:px-12 md:py-14">
+          <h2 className="text-2xl font-extrabold leading-tight text-white md:text-3xl">
+            מוכנים לראות את זה על האירוע שלכם?
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-slate-300">
-            השאירו פרטים ונחזור אליכם תוך 3 שעות עם הצעה מותאמת אישית.
+          <p className="mx-auto mt-3 max-w-md text-base text-slate-300">
+            שיחת ייעוץ קצרה, בלי התחייבות. נחזור אליכם תוך 3 שעות.
           </p>
-          <a href="/#contact" className="btn-primary mt-8">
-            התחילו עכשיו
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-white px-7 py-3 font-semibold text-brand-navy transition-colors hover:bg-gray-100"
+          >
+            דברו איתנו בוואטסאפ
           </a>
         </div>
       </section>
