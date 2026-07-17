@@ -2,6 +2,8 @@ import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import RsvpFlowSection from '@/components/RsvpFlowSection';
 import ProofOfContactSection from '@/components/ProofOfContactSection';
+import StatsStrip from '@/components/StatsStrip';
+import TestimonialsSection from '@/components/TestimonialsSection';
 import FeaturesServiceSection from '@/components/FeaturesServiceSection';
 import MidPageCTA from '@/components/MidPageCTA';
 import RoadmapSection from '@/components/RoadmapSection';
@@ -21,6 +23,8 @@ export default function Home() {
       <HeroSection />
       <RsvpFlowSection />
       <ProofOfContactSection />
+      {/* social proof — both hidden until real data is added (lib/stats, lib/testimonials) */}
+      <StatsStrip />
       <FeaturesServiceSection />
       {/* mid-page CTA #1 */}
       <MidPageCTA />
@@ -31,6 +35,7 @@ export default function Home() {
       <ConsultationSection />
       {/* mid-page CTA #2 — the "be among the first" launch banner */}
       <JoinBanner />
+      <TestimonialsSection />
       <FAQSection />
       <ContactSection />
       <Footer />
