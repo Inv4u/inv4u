@@ -1,3 +1,115 @@
+# BUILD_LOG — SESSION 4: Mobile-first, concise, human, credible (2026-07-17)
+
+Operator: Claude (Opus 4.8). Autonomous. Driven by Maor's live-site review + competitor
+research (too much scroll, weak mobile, still AI-looking, no trust signals, invisible AI-calling
+moat, and the market's open wound: promised RSVP calls that were never actually made). 10 tasks,
+each build-validated (`npm run build`, 0 errors) → commit → push. 8 commits total.
+
+## ★ SESSION 4 FINAL SUMMARY (read this first)
+
+| # | Task | Result | Commit |
+|---|------|--------|--------|
+| 5+7 | Real RSVP flow (WhatsApp→AI→human) + AI voice demo player | ✅ | `a1131b0` |
+| 9+10 | Proof-of-contact call log + guest-data ownership line | ✅ | `c466c25` |
+| 6 | Testimonials + stats structure (empty, hidden) | ✅ | `10a5806` |
+| 4 | Invitation mockup feels like a real WhatsApp chat | ✅ | `41b81e5` |
+| 1+8 | Cut homepage scroll ~40%, one WhatsApp CTA, FAQ trim | ✅ | `a30d05b` |
+| 3 | Kill remaining AI-tells (icons, grid, gradients) | ✅ | `3a14956` |
+| 1 | Tighten /how-it-works | ✅ | `5e433dc` |
+| 2 | Mobile-first audit (hamburger, tap targets, RTL) | ✅ | `7b8257b` |
+
+Every commit built with **0 errors** before push. Nothing committed on a failing build.
+
+### 📏 Scroll cut — before/after
+- **Homepage before:** ~11 stacked sections — Hero, HowItWorksCTA, FeaturesService, MidPageCTA,
+  Roadmap, Seating, Comparison, Consultation, JoinBanner, FAQ, Contact (≈8–10 mobile screens).
+- **Homepage after:** Hero → RSVP flow → Proof-of-contact → Stats(hidden) → Features → Testimonials(hidden)
+  → FAQ → Contact. **6 visible sections** (2 more auto-appear when Maor adds data). ~45% fewer sections.
+- **Deleted 8 orphaned components** (verified unreferenced first): `HowItWorksCTA`, `MidPageCTA`,
+  `RoadmapSection`, `SeatingLayoutSection`, `ComparisonSection`, `ConsultationSection`, `JoinBanner`,
+  `DemoModal`. Roadmap/Seating/Comparison overlapped the new flow/proof sections and the interactive
+  phone demo; the rest were duplicate CTAs.
+- **/how-it-works:** removed the per-step `min-h-screen` (each step was a full viewport), dropped the
+  bilingual English subtitles, trimmed the FAQ 6→4, replaced the purple mesh hero with clean white.
+
+### 🆕 New sections (the substance per screen Maor asked for)
+- **RSVP flow** (`RsvpFlowSection`) — a real 3-stage timeline, one line each: ההזמנה בוואטסאפ →
+  AI מתקשר למי שלא הגיב → **שיחות על ידי אדם** למי שנשאר. No call-center/staff claim; the promise is
+  "אף מוזמן לא נשמט". No competitor named.
+- **Proof of contact** (`ProofOfContactSection`) — the moat, made visible. A timestamped call log
+  (guest · time · status · Hebrew transcript snippet) styled as a clearly-labelled **תצוגה מקדימה**
+  product preview, not live data. Communicates verifiable contact — who was reached, when, what they
+  said. Calm tone, no "unlike others". Dashboard feature copy updated to
+  "תיעוד מלא של כל שיחה — מי נענה, מתי, ומה נאמר".
+- **Guest-data ownership** (Task 10) — one brief line near the proof section:
+  "רשימת המוזמנים שלכם היא שלכם בלבד — אתם שולטים בה." No venue/competitor negativity.
+
+### 📞 One primary CTA (Task 8)
+- Primary action everywhere is now **WhatsApp consultation** (Hero, Header, Contact, /how-it-works),
+  with the phone `tel:` link as a visually subordinate secondary.
+- **Judgment call (flagged):** the lead form was **demoted, not removed**. It still feeds the working
+  `/api/leads` notification pipeline (untouched), but now sits under an "או השאירו פרטים" heading beside
+  the WhatsApp-first block. Removing it would throw away async lead capture for the phone-sales model.
+
+### 🎭 Invitation mockup (Task 4)
+- The WhatsApp stage is now a real conversation: invitation sent (blue read receipt), guests replying
+  with names + **uneven** timestamps (11:24 / 11:26 / 11:31), one honest "אולי" reply, and a live
+  typing indicator. Warm couple line on the invitation (Cormorant Garamond + gold #C9A86C kept).
+- **Photo:** kept the current verified Unsplash photo (`photo-1519741497674-611481863552`, HTTP 200
+  confirmed). I could not visually verify the content of alternative IDs from this environment, so I
+  did not risk swapping to an unseen image. To change it later, edit `COUPLE_PHOTO` in
+  `components/PhoneMockup.tsx` (one constant).
+
+---
+
+## ✅ HOW TO ACTIVATE (testimonials / stats / AI voice) — for Maor
+
+All three ship **hidden** and turn on automatically once you add real content. Nothing is faked.
+
+1. **Testimonials** — edit **`lib/testimonials.ts`**. Add objects to the `testimonials` array:
+   ```ts
+   export const testimonials: Testimonial[] = [
+     { quote: 'ההזמנות יצאו בשתי דקות והאישורים נכנסו לבד.', name: 'דנה ל׳', event: 'חתונה, תל אביב' },
+   ];
+   ```
+   The "מה אומרים עלינו" section appears the moment the array is non-empty. Only real quotes.
+
+2. **Stats / social proof** — edit **`lib/stats.ts`**. Add objects to the `stats` array:
+   ```ts
+   export const stats: Stat[] = [
+     { value: '1,200', label: 'מוזמנים שקיבלו הזמנה' },
+     { value: '97%', label: 'שיעור אישורי הגעה' },
+   ];
+   ```
+   The navy stats strip appears once non-empty. Real figures only — no aspirational numbers.
+
+3. **AI voice demo** — drop the recording at **`public/audio/ai-demo.mp3`** (create the `public/audio/`
+   folder; it doesn't exist yet). The player ("האזינו לשיחת AI לדוגמה") appears automatically under
+   stage 2 of the RSVP flow. No file = no player (checked server-side in `lib/media.ts`). To change the
+   path/filename, edit `AI_DEMO_AUDIO_SRC` **and** the `existsSync` path in `lib/media.ts` together.
+
+---
+
+## 📱 Mobile audit — what was done, and the honest limit
+Audited at the **code level** for 375px (iPhone SE) / 390px (iPhone 14):
+- Every multi-column layout stacks to a single column below md/lg.
+- Contact inputs are 16px (`text-base`) to prevent iOS zoom-on-focus.
+- Primary CTAs are full-width and ~48px tall on mobile; new **hamburger menu** added to the header
+  (the nav was previously hidden with no mobile fallback), 44px toggle target.
+- Section padding reduced on mobile (`py-16` mobile / `py-24` desktop). Phone mockup (280px) fits
+  within a 375px viewport; `body` has `overflow-x-hidden`.
+- RTL edge cases: phone numbers/times/durations scoped to `dir="ltr"` spans (fixed a hero link that
+  wrongly flipped the Hebrew "או חייגו").
+- **Not verified in a device emulator** — this environment has no headless browser, so I did not take
+  real 375/390px screenshots. Please spot-check on your phone; flag anything and I'll fix it.
+
+### 🚫 Did NOT touch (per hard rules)
+`.env.local`; `/api/leads`, `lib/twilio.ts`, `lib/email.ts` (reused, not modified); no pricing anywhere;
+no invented testimonials/stats/names/photos/audio; no competitor named or attacked; brand stays INV4U
+in code (Maorly rename is a separate future session); no force push.
+
+---
+
 # BUILD_LOG — SESSION 3: Performance + Notifications + Visual Refinement + Privacy (2026-06-28)
 
 Operator: Claude (Opus 4.8). Autonomous. Driven by Maor's testing feedback (slow signup, missing
