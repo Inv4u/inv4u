@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
+import InvitationGallery from '@/components/InvitationGallery';
 import RsvpFlowSection from '@/components/RsvpFlowSection';
 import ProofOfContactSection from '@/components/ProofOfContactSection';
 import StatsStrip from '@/components/StatsStrip';
@@ -15,6 +16,8 @@ export default function Home() {
     <main className="w-full">
       <Header />
       <HeroSection />
+      {/* the product itself — 8 typographic invitation designs */}
+      <InvitationGallery />
       {/* the real RSVP flow — the differentiator */}
       <RsvpFlowSection />
       {/* verifiable contact — the moat */}
