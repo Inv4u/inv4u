@@ -36,10 +36,9 @@ export default function HeroSection() {
             </a>
             <a
               href={telHref}
-              dir="ltr"
               className="text-sm font-semibold text-gray-500 underline-offset-4 transition hover:text-brand-navy hover:underline"
             >
-              או חייגו {site.phoneDisplay}
+              או חייגו <span dir="ltr">{site.phoneDisplay}</span>
             </a>
           </div>
 
