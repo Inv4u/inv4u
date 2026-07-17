@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import RsvpFlowSection from '@/components/RsvpFlowSection';
+import ProofOfContactSection from '@/components/ProofOfContactSection';
 import FeaturesServiceSection from '@/components/FeaturesServiceSection';
 import MidPageCTA from '@/components/MidPageCTA';
 import RoadmapSection from '@/components/RoadmapSection';
@@ -19,6 +20,7 @@ export default function Home() {
       <Header />
       <HeroSection />
       <RsvpFlowSection />
+      <ProofOfContactSection />
       <FeaturesServiceSection />
       {/* mid-page CTA #1 */}
       <MidPageCTA />

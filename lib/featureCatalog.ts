@@ -34,7 +34,7 @@ export const FEATURE_CATALOG: FeatureMeta[] = [
     key: 'ai_calling',
     icon: PhoneCall,
     name: 'שיחות AI',
-    description: 'שיחות AI לאישורי הגעה',
+    description: 'תיעוד מלא של כל שיחה — מי נענה, מתי, ומה נאמר',
   },
   {
     key: 'email_backup',
