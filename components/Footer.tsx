@@ -1,3 +1,4 @@
+import { Phone, Mail, MessageCircle } from 'lucide-react';
 import { site, telHref, mailHref, whatsappHref } from '@/lib/site';
 
 export default function Footer() {
@@ -25,7 +26,7 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-3">
           <div>
             <div className="text-3xl font-black text-white">
-              INV<span className="text-gradient-warm">4</span>U
+              INV<span className="text-brand-blue">4</span>U
             </div>
             <p className="mt-3 max-w-xs leading-relaxed text-slate-400">
               הטכנולוגיה שמנהלת את האירוע שלך — הזמנות, אישורי הגעה אוטומטיים
@@ -48,18 +49,18 @@ export default function Footer() {
             <h4 className="mb-4 font-black text-white">צרו קשר</h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <a href={telHref} dir="ltr" className="inline-block hover:text-white">
-                  📞 {site.phoneDisplay}
+                <a href={telHref} dir="ltr" className="inline-flex items-center gap-2 hover:text-white">
+                  <Phone className="h-4 w-4" strokeWidth={2} /> {site.phoneDisplay}
                 </a>
               </li>
               <li>
-                <a href={mailHref} dir="ltr" className="inline-block hover:text-white">
-                  ✉️ {site.email}
+                <a href={mailHref} dir="ltr" className="inline-flex items-center gap-2 hover:text-white">
+                  <Mail className="h-4 w-4" strokeWidth={2} /> {site.email}
                 </a>
               </li>
               <li>
-                <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="hover:text-white">
-                  💬 וואטסאפ
+                <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-white">
+                  <MessageCircle className="h-4 w-4" strokeWidth={2} /> וואטסאפ
                 </a>
               </li>
             </ul>

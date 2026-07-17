@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
 
 interface QA {
   q: string;
@@ -28,20 +29,19 @@ const faqs: QA[] = [
 
 function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onToggle: () => void }) {
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
-        className="flex w-full items-center justify-between gap-4 p-5 text-right transition hover:bg-slate-50"
+        className="flex w-full items-center justify-between gap-4 p-5 text-right transition hover:bg-gray-50"
       >
-        <span className="text-lg font-bold text-brand-navy">{item.q}</span>
-        <span
-          className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-grape text-lg font-bold text-white transition-transform duration-300 ${
+        <span className="text-base font-bold text-brand-navy md:text-lg">{item.q}</span>
+        <Plus
+          className={`h-5 w-5 flex-shrink-0 text-brand-blue transition-transform duration-300 ${
             isOpen ? 'rotate-45' : ''
           }`}
-        >
-          +
-        </span>
+          strokeWidth={2.5}
+        />
       </button>
       <div
         className={`grid transition-all duration-300 ease-in-out ${
@@ -49,7 +49,7 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
         }`}
       >
         <div className="overflow-hidden">
-          <p className="px-5 pb-5 leading-relaxed text-slate-600">{item.a}</p>
+          <p className="px-5 pb-5 text-base leading-relaxed text-gray-600">{item.a}</p>
         </div>
       </div>
     </div>
@@ -60,19 +60,9 @@ export default function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="bg-mesh-light px-4 py-24" dir="rtl" id="faq">
+    <section className="bg-white px-5 py-16 md:py-24" dir="rtl" id="faq">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-12 text-center">
-          <span className="inline-block rounded-full bg-magenta/10 px-4 py-1.5 text-sm font-bold text-magenta">
-            שאלות נפוצות
-          </span>
-          <h2 className="mt-4 text-4xl font-black text-brand-navy md:text-5xl">
-            יש לכם <span className="text-gradient">שאלה?</span>
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-xl text-slate-600">
-            התשובות לשאלות שהכי חשוב לדעת לפני שמתחילים
-          </p>
-        </div>
+        <h2 className="mb-8 text-3xl font-extrabold text-brand-navy md:text-4xl">שאלות נפוצות</h2>
 
         <div className="space-y-3">
           {faqs.map((item, i) => (

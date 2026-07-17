@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { Bot, Check, MapPin, CalendarPlus } from 'lucide-react';
 
 /* ------------------------------------------------------------------ *
  *  Interactive phone mockup — 5 stages matching the "how it works"    *
@@ -120,9 +121,6 @@ export default function PhoneMockup() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* glow behind the phone — decorative only, must never intercept clicks */}
-      <div className="pointer-events-none absolute -inset-8 bg-gradient-to-tr from-grape via-magenta to-brand-blue opacity-40 blur-3xl rounded-full" />
-
       {/* phone body — focusable carousel, keyboard + swipe enabled */}
       <div
         role="group"
@@ -188,7 +186,9 @@ export default function PhoneMockup() {
 
       {/* floating confirmation bubble — decorative, must not block clicks */}
       <div className="pointer-events-none absolute bottom-16 -left-4 flex items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-xl animate-floaty">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366] text-white">✓</span>
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#25D366] text-white">
+          <Check className="h-4 w-4" strokeWidth={3} />
+        </span>
         <div className="leading-tight">
           <p className="text-[11px] font-bold text-slate-800">אישור התקבל</p>
           <p className="text-[10px] text-slate-400">לפני 2 דקות</p>
@@ -372,10 +372,9 @@ function RsvpScreen({
 }) {
   return (
     <div className="h-full bg-white">
-      <div className="relative bg-gradient-to-br from-grape via-magenta to-brand-blue px-5 pt-10 pb-6 text-center text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(255,255,255,0.25),transparent_55%)]" />
-        <p className="relative text-xs opacity-90">{COUPLE} · {EVENT_DATE}</p>
-        <h3 className="relative mt-1 text-2xl font-black">אישור הגעה</h3>
+      <div className="bg-brand-navy px-5 pt-10 pb-6 text-center text-white">
+        <p className="text-xs text-slate-300">{COUPLE} · {EVENT_DATE}</p>
+        <h3 className="mt-1 text-2xl font-black">אישור הגעה</h3>
       </div>
 
       <div className="px-5 py-5 space-y-4">
@@ -438,8 +437,12 @@ function RsvpScreen({
         )}
 
         <div className="grid grid-cols-2 gap-2 pt-1">
-          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-600"><span>📍</span> ניווט לאולם</div>
-          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-600"><span>📅</span> הוסף ליומן</div>
+          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-600">
+            <MapPin className="h-3.5 w-3.5 text-brand-blue" strokeWidth={2} /> ניווט לאולם
+          </div>
+          <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-600">
+            <CalendarPlus className="h-3.5 w-3.5 text-brand-blue" strokeWidth={2} /> הוסף ליומן
+          </div>
         </div>
       </div>
     </div>
@@ -456,8 +459,8 @@ function AiCallScreen() {
       </p>
 
       <div className="mx-auto mt-8 flex h-24 w-24 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-grape text-3xl animate-floaty">
-          🤖
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand-blue animate-floaty">
+          <Bot className="h-7 w-7 text-white" strokeWidth={2} />
         </div>
       </div>
 
@@ -499,7 +502,9 @@ function DashboardScreen() {
         <p className="text-xs text-slate-300">לוח בקרה · {COUPLE}</p>
         <div className="mt-1 flex items-end justify-between">
           <h3 className="text-xl font-black">מעקב אישורים</h3>
-          <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300">חי 🔴</span>
+          <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[11px] font-bold text-emerald-300">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> חי
+          </span>
         </div>
       </div>
 
@@ -519,7 +524,7 @@ function DashboardScreen() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-gradient-to-br from-grape to-brand-blue p-4 text-center text-white shadow-md">
+        <div className="rounded-xl bg-brand-blue p-4 text-center text-white shadow-md">
           <div className="text-3xl font-black">93%</div>
           <div className="text-[11px] opacity-90">אחוז אישורי הגעה</div>
         </div>
@@ -528,14 +533,16 @@ function DashboardScreen() {
           <p className="mb-2 text-[11px] font-bold text-slate-600">אישורים לפי יום</p>
           <div className="flex h-16 items-end justify-between gap-1.5">
             {bars.map((h, i) => (
-              <div key={i} className="flex-1 rounded-t bg-gradient-to-t from-brand-blue to-grape" style={{ height: `${h}%` }} />
+              <div key={i} className="flex-1 rounded-t bg-brand-blue" style={{ height: `${h}%` }} />
             ))}
           </div>
         </div>
 
         <div className="rounded-xl bg-white p-3 shadow-sm">
           <div className="flex items-center gap-2 text-[11px]">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">✓</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+              <Check className="h-3.5 w-3.5" strokeWidth={3} />
+            </span>
             <span className="font-bold text-slate-700">משפחת כהן</span>
             <span className="mr-auto text-slate-400">אישרו · 4 אורחים</span>
           </div>
