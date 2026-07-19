@@ -54,7 +54,7 @@ export default async function DashboardPage() {
       <header className="border-b border-gray-200">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <span className="text-xl font-extrabold text-brand-navy">
-            INV<span className="text-brand-blue">4</span>U
+            <span dir="ltr">Maor<span className="text-brand-blue">ly</span></span>
           </span>
           <SignOutButton />
         </div>

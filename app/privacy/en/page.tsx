@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | INV4U",
+  title: "Privacy Policy | Maorly",
   description:
-    "INV4U Privacy Policy: what information we collect, how we use it, the third-party services we rely on, and your rights.",
+    "Maorly Privacy Policy: what information we collect, how we use it, the third-party services we rely on, and your rights.",
   alternates: {
     canonical: "https://inv4u.vercel.app/privacy/en",
     languages: {
@@ -23,7 +23,7 @@ export default function PrivacyPageEn() {
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
         <nav className="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="text-2xl font-extrabold text-brand-navy">
-            INV<span className="text-brand-blue">4</span>U
+            <span dir="ltr">Maor<span className="text-brand-blue">ly</span></span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
             <Link href="/" className="text-slate-500 transition hover:text-brand-navy">
@@ -52,7 +52,7 @@ export default function PrivacyPageEn() {
           {/* 1. Introduction */}
           <Section title="1. Introduction — Who We Are">
             <P>
-              INV4U (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;the
+              Maorly (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;the
               Service&rdquo;) is a sole proprietorship (&ldquo;עוסק פטור&rdquo;)
               registered in Israel that provides a platform for creating smart
               digital event invitations, sending them to guests, collecting
@@ -412,7 +412,7 @@ export default function PrivacyPageEn() {
             </P>
             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-slate-700">
               <p className="mb-1">
-                <strong>Business name:</strong> INV4U (sole proprietor /
+                <strong>Business name:</strong> Maorly (sole proprietor /
                 &ldquo;עוסק פטור,&rdquo; registered in Israel)
               </p>
               <p className="mb-1">

@@ -30,7 +30,7 @@ export default async function AdminLayout({
       <div className="flex-1">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3 md:hidden">
           <span className="font-black text-brand-navy">
-            INV<span className="text-brand-blue">4</span>U · ניהול
+            <span dir="ltr">Maor<span className="text-brand-blue">ly</span></span> · ניהול
           </span>
           <SignOutButton className="rounded-full border border-slate-300 px-3 py-1 text-xs font-bold text-slate-600" />
         </header>

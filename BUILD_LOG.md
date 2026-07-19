@@ -1,3 +1,73 @@
+# BUILD_LOG — SESSION 6: Rebrand INV4U → Maorly (2026-07-19)
+
+Operator: Claude (Opus 4.8). Rebrand all **user-facing** "INV4U" → **Maorly** to unblock Meta
+business verification, plus a legal footer line. Technical identifiers (folder/repo/package/env/
+email/domain) intentionally unchanged. Build validated (0 errors) → commit → push.
+
+> ⚠️ **PLACEHOLDER — action needed:** the footer legal line contains the literal token
+> `OSEK_PATUR_NUMBER`. Replace it with your real עוסק פטור number in `components/Footer.tsx`
+> before relying on this for Meta verification — a literal placeholder in a legal footer reads
+> as broken to a reviewer. (Inserted verbatim as instructed.)
+
+## STEP 1 — Discovery (case-insensitive INV4U / Inv4u / inv4u)
+
+**(a) USER-FACING brand text → changed to Maorly.** Note: 7 of these are the wordmark rendered as
+`INV<span>4</span>U`, which a plain-text grep misses — found via a split-pattern grep.
+- Wordmarks: `components/Header.tsx`, `components/Footer.tsx`, `components/AuthShell.tsx`,
+  `components/admin/AdminSidebar.tsx`, `app/admin/layout.tsx`, `app/dashboard/page.tsx`,
+  `app/dashboard/[feature]/page.tsx`, `app/privacy/page.tsx`, `app/privacy/en/page.tsx`.
+- Page `<title>` / meta description: `app/layout.tsx`, `app/how-it-works/page.tsx`,
+  `app/create-event/page.tsx`, `app/forgot-password/page.tsx`, `app/features/[slug]/page.tsx`,
+  `app/privacy/page.tsx`, `app/privacy/en/page.tsx`.
+- Visible copy: `components/PhoneMockup.tsx` (AI-call heading + transcript),
+  `components/HowItWorks.tsx` (step copy + subheading), `app/how-it-works/page.tsx` (h1),
+  `lib/features.ts` (3 marketing intros), privacy bodies + business-name line (HE + EN).
+- User-sent brand text: `lib/site.ts` (prefilled WhatsApp text), `lib/featureCatalog.ts`
+  (2 prefilled WhatsApp messages), `app/signup/page.tsx` (AuthShell heading).
+
+**(b) TECHNICAL → intentionally kept (with reason).**
+- `package.json` / `package-lock.json` name `inv4u` — hard rule (no package rename).
+- Folder path `C:\Users\Maor\inv4u`, GitHub `github.com/Inv4u/inv4u` — hard rule (no repo rename).
+- `lib/site.ts` email `inv4u.business@gmail.com` — hard rule (functional lead capture).
+- `lib/twilio.ts:88` ("ליד חדש מהאתר INV4U") + `lib/email.ts:69` (`"Inv4u Leads"` From-name) —
+  **protected files** (hard rule) AND internal alerts to Maor, not customer-facing.
+- `app/api/admin/test-notifications/route.ts:38` — internal admin diagnostic, not customer/Meta-
+  facing; kept for consistency with the two protected lead messages above.
+- `app/privacy/*` `https://inv4u.vercel.app` — the **real live domain** (not the brand name);
+  and `inv4u.business@gmail.com` — functional email. Both must stay accurate. Update if a
+  Maorly domain is added later.
+- `components/CookieConsent.tsx:5` `STORAGE_KEY = 'inv4u_cookie_consent'` — localStorage key;
+  renaming it would silently reset every visitor's cookie consent.
+- Code comments / internal docs: `types/index.ts`, `lib/notify.ts`, `DATABASE_PLAN.md`,
+  `README.md`, `supabase/migrations/*.sql`, `.env.example` — technical; repo identity stays inv4u.
+- `CLAUDE.md:73` GitHub URL + the new brand note — deliberately reference inv4u as unchanged.
+- `BUILD_LOG.md` Session 4/5 lines ("brand stays INV4U") — historical record (true at the time),
+  superseded by this entry which sits above them.
+
+**No OpenGraph / Twitter / web-manifest metadata exists** in the app — nothing to rebrand there,
+and none was invented.
+
+## STEP 2/3 — Changes
+- Every wordmark → `Maor` + accent `ly`, wrapped in `<span dir="ltr">` so the Latin word doesn't
+  flip inside RTL. Inline Hebrew brand mentions in JSX wrapped in `<span dir="ltr">Maorly</span>`;
+  brand mentions inside plain data/metadata strings use plain `Maorly` (a single Latin token is
+  bidi-safe). English page uses plain `Maorly` (LTR context).
+- **Footer legal line** added directly under the wordmark (RTL, `text-xs`, `#6B7280`):
+  `Maorly — מאור יוסף סלם · עוסק פטור OSEK_PATUR_NUMBER` (Maorly in `dir="ltr"`).
+- Copyright line → `© 2026 Maorly · כל הזכויות שמורות` (Maorly in `dir="ltr"`).
+
+## STEP 4 — Docs
+- `CLAUDE.md`: title + intro brand → Maorly; added note "Brand = Maorly. Legal entity = מאור יוסף
+  סלם, Osek Patur. Folder/repo/package still named inv4u — do not rename." GitHub URL kept.
+
+## STEP 5 — Verify
+- `npm run build` → **0 errors**. Case-insensitive re-grep of `app/` + `components/`: the only
+  remaining `inv4u` hits are the real domain URLs, the functional email, the localStorage key, and
+  the internal admin-test message — all category (b), listed above. No user-facing brand text or
+  wordmark remains as INV4U.
+
+---
+
 # BUILD_LOG — SESSION 5: Substance, product imagery, real invitations (2026-07-17)
 
 Operator: Claude (Opus 4.8). Autonomous. Driven by Maor's verdict after Sessions 3–4:

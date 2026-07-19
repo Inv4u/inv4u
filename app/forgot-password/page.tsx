@@ -4,7 +4,7 @@ import { KeyRound, MessageSquare, Phone } from 'lucide-react';
 import { site, telHref, whatsappHref } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'שחזור סיסמה | inv4u',
+  title: 'שחזור סיסמה | Maorly',
 };
 
 export default function ForgotPasswordPage() {

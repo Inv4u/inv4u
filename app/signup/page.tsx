@@ -82,7 +82,7 @@ export default function SignupPage() {
 
   return (
     <AuthShell
-      title="הרשמה ל-inv4u"
+      title="הרשמה ל-Maorly"
       subtitle="צרו חשבון בחינם — ונסגור את חבילת האירוע בשיחה קצרה"
     >
       <form onSubmit={handleSubmit} className="space-y-5" noValidate>

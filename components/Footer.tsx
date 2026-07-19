@@ -26,8 +26,14 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-3">
           <div>
             <div className="text-3xl font-black text-white">
-              INV<span className="text-brand-blue">4</span>U
+              <span dir="ltr">Maor<span className="text-brand-blue">ly</span></span>
             </div>
+            {/* Legal entity line — Osek Patur. NOTE: OSEK_PATUR_NUMBER is a
+                PLACEHOLDER; replace with the real עוסק פטור number before relying
+                on this for Meta business verification. */}
+            <p className="mt-2 text-xs" style={{ color: '#6B7280' }}>
+              <span dir="ltr">Maorly</span> — מאור יוסף סלם · עוסק פטור OSEK_PATUR_NUMBER
+            </p>
             <p className="mt-3 max-w-xs leading-relaxed text-slate-400">
               הטכנולוגיה שמנהלת את האירוע שלך — הזמנות, אישורי הגעה אוטומטיים
               וניהול אורחים, הכל ממקום אחד.
@@ -68,7 +74,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-500">
-          © {new Date().getFullYear()} INV4U · כל הזכויות שמורות
+          © 2026 <span dir="ltr">Maorly</span> · כל הזכויות שמורות
         </div>
       </div>
     </footer>

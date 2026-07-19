@@ -459,7 +459,7 @@ function AiCallScreen() {
         </div>
       </div>
 
-      <h3 className="mt-5 text-xl font-black">סוכן INV4U מתקשר</h3>
+      <h3 className="mt-5 text-xl font-black">סוכן <span dir="ltr">Maorly</span> מתקשר</h3>
       <p className="mt-1 text-xs text-slate-300">למוזמנים שטרם אישרו הגעה</p>
 
       {/* live soundwave */}
@@ -476,7 +476,7 @@ function AiCallScreen() {
       {/* transcript snippet */}
       <div className="mt-6 space-y-2 text-right">
         <div className="rounded-2xl rounded-tr-sm bg-white/10 px-3 py-2 text-[11px] leading-relaxed text-slate-100">
-          “היי, מדברת מ-INV4U בקשר לחתונה של {COUPLE}. רציתי לוודא — תגיעו לאירוע?”
+          “היי, מדברת מ-<span dir="ltr">Maorly</span> בקשר לחתונה של {COUPLE}. רציתי לוודא — תגיעו לאירוע?”
         </div>
         <div className="ms-auto max-w-[80%] rounded-2xl rounded-tl-sm bg-brand-teal/20 px-3 py-2 text-[11px] text-brand-teal">
           “כן, נגיע שניים!” ✓

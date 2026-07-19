@@ -220,7 +220,7 @@ const STEPS: Step[] = [
     num: '01',
     headline: 'יצירת האירוע',
     description:
-      'בונים את האירוע ב-INV4U תוך דקות — בוחרים עיצוב, מוסיפים פרטים, ומעלים את רשימת המוזמנים.',
+      'בונים את האירוע ב-Maorly תוך דקות — בוחרים עיצוב, מוסיפים פרטים, ומעלים את רשימת המוזמנים.',
     Art: CreateEventArt,
     longDescription:
       'נכנסים למערכת, בוחרים את סוג האירוע ואת העיצוב שמדבר אליכם, וממלאים את הפרטים — תאריך, מקום, שעה וטקסט אישי. מעלים את רשימת המוזמנים מקובץ Excel/CSV או מדביקים ישירות מאנשי הקשר. תוך דקות ספורות ההזמנה הדיגיטלית מוכנה לשליחה, ואנחנו כאן ללוות אתכם בכל שלב.',
@@ -455,7 +455,7 @@ export default function HowItWorks({ expanded = false }: { expanded?: boolean })
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mx-auto mt-4 max-w-xl text-lg text-slate-600 md:text-xl"
           >
-            חמישה שלבים פשוטים. INV4U מנהל את כולם בשבילכם.
+            חמישה שלבים פשוטים. <span dir="ltr">Maorly</span> מנהל את כולם בשבילכם.
           </motion.p>
         </div>
       )}

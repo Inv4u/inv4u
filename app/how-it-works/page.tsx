@@ -7,9 +7,9 @@ import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import { whatsappHref } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'איך זה עובד | INV4U — מההזמנה ועד האירוע המושלם',
+  title: 'איך זה עובד | Maorly — מההזמנה ועד האירוע המושלם',
   description:
-    'התהליך ב-INV4U: הזמנות בוואטסאפ, אישורי הגעה אוטומטיים, שיחות AI בעברית וניהול אורחים מלוח בקרה אחד.',
+    'התהליך ב-Maorly: הזמנות בוואטסאפ, אישורי הגעה אוטומטיים, שיחות AI בעברית וניהול אורחים מלוח בקרה אחד.',
 };
 
 export default function HowItWorksPage() {
@@ -21,7 +21,7 @@ export default function HowItWorksPage() {
       <section className="bg-white px-5 pb-10 pt-14 text-center md:pb-14 md:pt-20" dir="rtl">
         <div className="mx-auto max-w-2xl">
           <h1 className="text-4xl font-extrabold leading-tight text-brand-navy md:text-5xl">
-            איך INV4U עובד
+            איך <span dir="ltr">Maorly</span> עובד
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-gray-500">
             חמישה שלבים. אנחנו מנהלים את כולם — מההזמנה ועד רשימת אורחים סופית ומדויקת.

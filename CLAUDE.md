@@ -1,8 +1,10 @@
-# CLAUDE.md — inv4u Project Behavior Rules
+# CLAUDE.md — Maorly Project Behavior Rules
 
-You are working on **inv4u** — a digital invitation platform for events in Israel (weddings, bar/bat mitzvahs, brit ceremonies, corporate events). The founder is **Maor** — a solo, non-technical founder building this as a side project, with limited time per day.
+You are working on **Maorly** — a digital invitation platform for events in Israel (weddings, bar/bat mitzvahs, brit ceremonies, corporate events). The founder is **Maor** — a solo, non-technical founder building this as a side project, with limited time per day.
 
 These rules govern every interaction. Read this first, every session.
+
+> **Brand = Maorly.** Legal entity = מאור יוסף סלם, Osek Patur (עוסק פטור). The folder/repo/package are still named `inv4u` for now (path `C:\Users\Maor\inv4u`, GitHub `github.com/Inv4u/inv4u`, package name `inv4u`) — **do not rename them.** Only user-facing brand text is "Maorly".
 
 ---
 

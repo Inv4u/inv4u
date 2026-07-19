@@ -3,7 +3,7 @@ import "../styles/globals.css";
 import CookieConsent from "../components/CookieConsent";
 
 export const metadata: Metadata = {
-  title: "INV4U - הטכנולוגיה שמנהלת את האירוע שלך",
+  title: "Maorly - הטכנולוגיה שמנהלת את האירוע שלך",
   description: "פתרון מלא לניהול אירועים - הזמנות דיגיטליות, אישורי הגעה אוטומטיים וניהול אורחים בוואטסאפ",
 };
 

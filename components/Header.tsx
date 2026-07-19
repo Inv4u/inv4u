@@ -18,7 +18,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white" dir="rtl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
         <Link href="/" className="text-2xl font-extrabold text-brand-navy">
-          INV<span className="text-brand-blue">4</span>U
+          <span dir="ltr">Maor<span className="text-brand-blue">ly</span></span>
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm font-medium text-gray-600 md:flex">

@@ -73,9 +73,9 @@ export function whatsappTo(message: string): string {
 
 /** Prefilled WhatsApp text for the dashboard "let's close your package" banner. */
 export const DASHBOARD_BANNER_WHATSAPP =
-  'היי מאור, נרשמתי ל-inv4u ואשמח לסגור את חבילת האירוע שלי 🎉';
+  'היי מאור, נרשמתי ל-Maorly ואשמח לסגור את חבילת האירוע שלי 🎉';
 
 /** Prefilled WhatsApp text shown when a user clicks a locked feature. */
 export function lockedFeatureWhatsapp(featureName: string): string {
-  return `היי מאור, אשמח לפתוח את הפיצ'ר "${featureName}" בחשבון inv4u שלי`;
+  return `היי מאור, אשמח לפתוח את הפיצ'ר "${featureName}" בחשבון Maorly שלי`;
 }

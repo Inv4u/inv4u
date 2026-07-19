@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "מדיניות פרטיות | INV4U",
+  title: "מדיניות פרטיות | Maorly",
   description:
-    "מדיניות הפרטיות של INV4U: איזה מידע אנו אוספים, כיצד אנו משתמשים בו, אילו שירותי צד שלישי אנו מפעילים ומהן זכויותיך.",
+    "מדיניות הפרטיות של Maorly: איזה מידע אנו אוספים, כיצד אנו משתמשים בו, אילו שירותי צד שלישי אנו מפעילים ומהן זכויותיך.",
   alternates: {
     canonical: "https://inv4u.vercel.app/privacy",
     languages: {
@@ -23,7 +23,7 @@ export default function PrivacyPageHe() {
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
         <nav className="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="text-2xl font-extrabold text-brand-navy">
-            INV<span className="text-brand-blue">4</span>U
+            <span dir="ltr">Maor<span className="text-brand-blue">ly</span></span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
             <Link
@@ -55,7 +55,7 @@ export default function PrivacyPageHe() {
           {/* 1. Introduction */}
           <Section title="1. מבוא — מי אנחנו">
             <P>
-              INV4U (להלן: &ldquo;אנחנו&rdquo;, &ldquo;אנו&rdquo; או
+              <span dir="ltr">Maorly</span> (להלן: &ldquo;אנחנו&rdquo;, &ldquo;אנו&rdquo; או
               &ldquo;השירות&rdquo;) הוא עוסק פטור הרשום בישראל, המספק פלטפורמה
               ליצירת הזמנות דיגיטליות חכמות לאירועים, שליחתן לאורחים, איסוף אישורי
               הגעה וביצוע שיחות מעקב אוטומטיות.
@@ -361,7 +361,7 @@ export default function PrivacyPageHe() {
             <P>בכל שאלה, בקשה או פנייה בנושא פרטיות ניתן לפנות אלינו:</P>
             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-6 text-slate-700">
               <p className="mb-1">
-                <strong>שם העסק:</strong> INV4U (עוסק פטור, רשום בישראל)
+                <strong>שם העסק:</strong> <span dir="ltr">Maorly</span> (עוסק פטור, רשום בישראל)
               </p>
               <p className="mb-1">
                 <strong>בעל העסק:</strong> מאור יוסף סלם

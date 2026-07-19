@@ -23,7 +23,7 @@ export default function AdminSidebar() {
     <aside className="border-gray-200 bg-white md:sticky md:top-0 md:flex md:h-screen md:w-60 md:flex-col md:border-l">
       <div className="hidden px-6 py-5 md:block">
         <Link href="/admin" className="text-xl font-extrabold text-brand-navy">
-          INV<span className="text-brand-blue">4</span>U
+          <span dir="ltr">Maor<span className="text-brand-blue">ly</span></span>
         </Link>
         <span className="mt-1 block text-xs font-medium uppercase tracking-wide text-gray-400">
           ניהול

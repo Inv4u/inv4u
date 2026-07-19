@@ -5,7 +5,7 @@ export const site = {
   phoneDisplay: '050-644-5570',
   // International E.164 format (no +, no spaces) for tel: and wa.me links.
   phoneE164: '972506445570',
-  whatsappDefaultText: 'היי! אשמח לשמוע עוד על INV4U לאירוע שלי 🎉',
+  whatsappDefaultText: 'היי! אשמח לשמוע עוד על Maorly לאירוע שלי 🎉',
 } as const;
 
 export const telHref = `tel:+${site.phoneE164}`;

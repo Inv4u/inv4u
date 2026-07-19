@@ -17,9 +17,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const feature = getFeature(slug);
-  if (!feature) return { title: 'INV4U' };
+  if (!feature) return { title: 'Maorly' };
   return {
-    title: `${feature.title} · INV4U`,
+    title: `${feature.title} · Maorly`,
     description: feature.tagline,
   };
 }
