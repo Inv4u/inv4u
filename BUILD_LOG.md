@@ -1,3 +1,135 @@
+# BUILD_LOG — SESSION 7: Security + signup-speed hardening (2026-07-19)
+
+Operator: Claude (Opus 4.8). Audit-then-fix. **I have no live-Supabase or runtime access** — DB
+changes are delivered as a `.sql` migration for Maor to run manually; timing is instrumented, not
+measured here.
+
+## STEP 1 — AUDIT FINDINGS
+
+### 1. Supabase RLS (per table)
+Reviewed migration files `0001`–`0004`. **Every table has RLS ENABLED with owner-scoped or
+admin-only policies — no `USING (true)`, none disabled:**
+
+| Table | RLS | Row scoping |
+|---|---|---|
+| `users` | ✅ enabled | SELECT/UPDATE `id = auth.uid()` or `is_admin()`; role self-escalation blocked by `guard_user_update` trigger |
+| `feature_access` | ✅ enabled | SELECT `user_id = auth.uid()` (read-only); writes admin-only |
+| `events` | ✅ enabled | SELECT `owner_id = auth.uid()`; admin full |
+| `guests` | ✅ enabled | ALL gated by parent event `owner_id = auth.uid()` (or admin) — **cross-user read blocked** |
+| `invitations` | ✅ enabled | ALL gated via guest→event owner chain (or admin) — **cross-user read blocked** |
+| `admin_notifications` | ✅ enabled | admin-only (`is_admin()`) |
+| `user_notes` | n/a | there is no `user_notes` table — deal notes are a `users.notes` **column** (0004), covered by the `users` RLS above |
+
+Public RSVP uses **token-scoped `SECURITY DEFINER` RPCs** (`get_guest_by_token`, `respond_rsvp`)
+that expose only the single row matching an unguessable `invite_token` uuid — not a broad public
+policy. Good.
+
+**⚠️ Caveat (cannot verify from here):** these are the migration *files*. I cannot confirm they were
+applied to the **live** DB — the Session 2 log notes migrations were never pushed to prod. If they
+weren't, the tables/policies may not exist live. → STEP 2 ships `0005` to *guarantee* the state, plus
+a verification query.
+
+**Secondary finding (info disclosure, not cross-user):** `users.notes` holds Maor's private deal
+notes about a customer, but the `users_select_self_or_admin` policy lets that customer read their own
+`users` row **including `notes`**. Not a cross-user leak, but admin-private data is visible to the row
+owner. RLS is row-level, not column-level, so the clean fix is a separate admin-only table or column
+privileges + an admin-UI read change. **Not auto-fixed** (would touch admin reads; needs runtime
+testing) — documented as a recommendation.
+
+### 2. Service key — client-bundle safety ✅
+`SUPABASE_SERVICE_ROLE_KEY` / legacy `SUPABASE_SERVICE_KEY` are referenced only in **server-only**
+modules: `lib/supabase.ts` (used by `/api/leads`) and `lib/supabase/admin.ts` (used by admin
+pages/actions, `lib/notify`). Neither has `'use client'`; neither is imported by a client component.
+The var is **not** `NEXT_PUBLIC`-prefixed, so Next.js never inlines it into the client bundle.
+No leak.
+
+### 3. Signup path trace
+**Signup is CLIENT-DRIVEN — there is no server signup route today.**
+`app/signup/page.tsx` → `lib/auth.signUp()` → browser `supabase.auth.signUp()` (anon key) →
+Supabase Auth creates the auth user → DB trigger `handle_new_user` inserts the `users` row + seeds 6
+locked `feature_access` rows → client fires **fire-and-forget** `POST /api/auth/notify-signup`
+(`keepalive:true`) → `router.push('/dashboard')`.
+- **Awaited in the blocking (client-perceived) path: only `supabase.auth.signUp()`.**
+- `notify-signup` returns `200` immediately and sends email + WhatsApp **after the response** via
+  `after()` — **notifications are already NOT blocking** (done in Session 3). STEP 2.2 is already
+  satisfied for signup; I preserved it.
+
+### 4. Signup defenses — GAP
+Rate limiting, honeypot, and CAPTCHA are implemented **only on `/api/leads`**, NOT on signup (there
+was no server signup route to attach them to). Signup had **client-side field validation only**.
+→ STEP 2 adds a server signup gate with rate-limit + honeypot + server-side Turnstile verification.
+
+### 5. Region
+**No `vercel.json`** → functions run in Vercel's default region (US East / `iad1` unless the project
+dashboard overrides). Supabase is **Frankfurt (eu-central-1)**. Every *server*→Supabase round trip
+(dashboard SSR, admin pages, notify insert) pays cross-Atlantic latency. → STEP 2 adds
+`"regions": ["fra1"]`. Note: the *browser*→Supabase `signUp()` call is independent of the Vercel
+region; `fra1` mainly speeds server→DB paths.
+
+### Bonus finding (not changed — CLAUDE.md forbids touching `/api/leads`)
+`/api/leads` still `await`s the email **and** WhatsApp sends before responding (blocking). Recommend
+converting to `after()` (like `notify-signup`) when the "don't modify /api/leads" rule is lifted.
+
+
+
+## STEP 2 — FIXES
+
+**2.1 RLS.** All policies were already owner-scoped in the files, so nothing was weakened. Because I
+can't verify the live DB, I shipped **`supabase/migrations/0005_rls_hardening.sql`** — idempotent;
+re-enables RLS and re-asserts the exact owner-scoped/admin policies on all 6 tables, plus a
+verification query. `users.notes` exposure documented (not auto-fixed).
+
+**2.2 Async notifications.** Already fire-and-forget (`/api/auth/notify-signup` → `after()`).
+Verified and preserved — signup never waits on Gmail/Twilio.
+
+**2.3 Region.** Added **`vercel.json`** → `"regions": ["fra1"]` to co-locate functions with the
+Frankfurt DB (speeds every server→Supabase round trip).
+
+**2.4 Turnstile (invisible CAPTCHA).** New server route **`app/api/auth/signup/route.ts`** verifies
+the token server-side against Cloudflare (reads `TURNSTILE_SECRET_KEY`; **skips gracefully when
+unset**). **`components/Turnstile.tsx`** renders the widget (`appearance="interaction-only"`) and
+reports the token; renders nothing when the site key is unset.
+- **Honest limitation (flagged):** account creation stays **client-side** (`supabase.auth.signUp`
+  with the public anon key) to preserve the proven session/cookie flow, since I can't runtime-test a
+  server-side auth rewrite (HARD RULE: don't break functionality). So the gate blocks form/casual
+  bots, but a determined bot can bypass it by calling `signUp` directly with the anon key. **To make
+  it airtight, enable Supabase Auth's native Turnstile CAPTCHA in the dashboard** (same keys) — then
+  Supabase itself rejects any `signUp` without a valid token. Recommended follow-up.
+
+**2.5 Rate limit + honeypot.** Now applied to signup via the new gate (10/IP/hour + `company`
+honeypot), reusing `lib/rateLimit` — previously signup had neither.
+
+## STEP 3 — MEASURE + BUILD
+- Timing logs added: server `[signup] gate passed … Nms turnstile=verified|skipped` (Vercel logs) and
+  client `[signup] client blocking path … ms` (browser console). Response time is now measurable.
+- `npm run build` → **0 errors**; `/api/auth/signup` route registered.
+
+## FILES CHANGED (Session 7)
+- **New:** `supabase/migrations/0005_rls_hardening.sql`, `vercel.json`,
+  `app/api/auth/signup/route.ts`, `components/Turnstile.tsx`.
+- **Edited:** `app/signup/page.tsx` (gate call + honeypot + Turnstile + timing), `.env.example`
+  (Turnstile keys), `BUILD_LOG.md`.
+- **Verified safe / unchanged:** `lib/supabase/admin.ts`, `lib/supabase.ts`, `/api/leads`,
+  `lib/twilio.ts`, `lib/email.ts`, `/api/auth/notify-signup` (already async).
+
+## ⚠️ ACTION REQUIRED — Maor (manual; I cannot do these)
+1. **Run the RLS SQL** in Supabase Dashboard → SQL Editor, in order: `0001`,`0002`,`0003`,`0004`
+   (idempotent — safe even if already applied), **then `0005`**. Then run the verification `SELECT`
+   at the bottom of `0005` and confirm every table shows `rls_enabled = true` and there is **no**
+   policy whose `using` clause is just `true`.
+2. **Add env vars** (Vercel project settings, and `.env.local` for dev):
+   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` = Cloudflare Turnstile **site** key (public).
+   - `TURNSTILE_SECRET_KEY` = Turnstile **secret** key (server-only).
+   Until both are set, the CAPTCHA is skipped and signup works normally.
+3. **(Recommended)** Supabase → Authentication → Attack Protection → enable the built-in **Turnstile
+   CAPTCHA** with the same keys — closes the anon-key bypass described in 2.4.
+4. `fra1` region takes effect on the next Vercel deploy (no action needed).
+
+**Constraint honesty:** no live-Supabase or runtime access here — RLS is delivered as SQL for you to
+run, and timing is instrumented, not measured.
+
+---
+
 # BUILD_LOG — SESSION 6: Rebrand INV4U → Maorly (2026-07-19)
 
 Operator: Claude (Opus 4.8). Rebrand all **user-facing** "INV4U" → **Maorly** to unblock Meta

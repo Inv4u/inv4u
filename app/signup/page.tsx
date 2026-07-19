@@ -6,12 +6,15 @@ import { useRouter } from 'next/navigation';
 import { signUp } from '@/lib/auth';
 import { isValidEmail, isValidIsraeliPhone } from '@/lib/validation';
 import { AuthShell, Field, translateAuthError } from '@/components/AuthShell';
+import Turnstile from '@/components/Turnstile';
 
 export default function SignupPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState('');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
+  const [company, setCompany] = useState(''); // honeypot — real users never fill it
+  const [tsToken, setTsToken] = useState(''); // Cloudflare Turnstile token
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -45,6 +48,37 @@ export default function SignupPage() {
     }
 
     setSubmitting(true);
+    const startedAt = performance.now();
+
+    // Server-side security gate: rate limit + honeypot + Turnstile verification.
+    // Must pass before we create the account. (Skips Turnstile if keys unset.)
+    try {
+      const gate = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: name,
+          email: isEmail ? id : '',
+          phone: isEmail ? '' : id,
+          company, // honeypot
+          turnstileToken: tsToken,
+        }),
+      });
+      const gateData = (await gate.json().catch(() => ({ ok: false }))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!gate.ok || !gateData.ok) {
+        setError(gateData.error || 'אירעה שגיאה. נסו שוב.');
+        setSubmitting(false);
+        return;
+      }
+    } catch {
+      setError('שגיאת רשת. בדקו את החיבור ונסו שוב.');
+      setSubmitting(false);
+      return;
+    }
+
     const result = await signUp({
       email: isEmail ? id : undefined,
       phone: isEmail ? undefined : id,
@@ -56,6 +90,7 @@ export default function SignupPage() {
       setSubmitting(false);
       return;
     }
+    console.log(`[signup] client blocking path ${Math.round(performance.now() - startedAt)}ms`);
 
     // Alert Maor — fire-and-forget so the redirect isn't blocked by Gmail/Twilio
     // latency. `keepalive` lets the request survive the navigation; the route
@@ -111,6 +146,27 @@ export default function SignupPage() {
           placeholder="לפחות 8 תווים"
           autoComplete="new-password"
         />
+
+        {/* Honeypot — hidden from humans; bots auto-fill it. */}
+        <div
+          aria-hidden="true"
+          className="absolute left-[-9999px] top-[-9999px] h-0 w-0 overflow-hidden opacity-0"
+        >
+          <label htmlFor="company">Company (leave empty)</label>
+          <input
+            type="text"
+            id="company"
+            name="company"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
+        {/* Invisible CAPTCHA — renders nothing unless a challenge is needed, and
+            nothing at all when the site key is unset. */}
+        <Turnstile onVerify={setTsToken} />
 
         {error && (
           <p className="rounded-lg bg-rose-50 px-4 py-2 text-center text-sm font-bold text-rose-600">
